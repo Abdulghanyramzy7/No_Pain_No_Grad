@@ -1,0 +1,516 @@
+import 'package:flutter/material.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/policies/client_detail_view.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/policies/clinet_model.dart';
+
+class PoliciesScreen extends StatefulWidget {
+  const PoliciesScreen({super.key});
+
+  @override
+  State<PoliciesScreen> createState() => _PoliciesScreenState();
+}
+
+class _PoliciesScreenState extends State<PoliciesScreen> {
+  // بيانات الخطط (قابلة لتعديل السعر)
+  final List<PlanModel> _plans = PlansRepository.plans;
+  // بيانات العملاء من التصميم
+  final List<ClientModel> _clients = [
+    ClientModel(
+      name: 'Sara Mahmoud',
+      planType: 'Quarterly',
+      currentDay: 12,
+    ),
+    ClientModel(
+      name: 'Youssef Ammar',
+      planType: 'Monthly',
+      currentDay: 17,
+    ),
+    ClientModel(
+      name: 'Marwa Salem',
+      planType: 'Monthly',
+      currentDay: 3,
+    ),
+    ClientModel(
+      name: 'Khawla Ali',
+      planType: 'Monthly',
+      currentDay: 18,
+    ),
+    ClientModel(
+      name: 'Hager Ahmed',
+      planType: 'Monthly',
+      currentDay: 22,
+    ),
+    ClientModel(
+      name: 'Kadeja Ahmed',
+      planType: 'Monthly',
+      currentDay: 5,
+    ),
+  ];
+
+  // فتح Bottom Sheet لتعديل سعر الخطة
+  void _showEditPriceBottomSheet(PlanModel plan) {
+    final TextEditingController priceController =
+        TextEditingController(text: plan.price.toString());
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Edit ${plan.title} Price',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1D1F),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: priceController,
+                keyboardType: TextInputType.number,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Price (EGP)',
+                  suffixText: 'EGP',
+                  filled: true,
+                  fillColor: const Color(0xFFF4F6F8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E9E89),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: () {
+                    final newPrice = int.tryParse(priceController.text.trim());
+                    if (newPrice != null && newPrice > 0) {
+                      setState(() {
+                        plan.price = newPrice;
+                      });
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text(
+                    'Save Price',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 152, 238, 224),
+              Color.fromRGBO(182, 239, 228, 1),
+              Color.fromARGB(255, 209, 238, 231),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header (Menu Icon + Policies Title)
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.menu, color: Color(0xFF1A1D1F)),
+                        onPressed: () {},
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Text(
+                      'Policies',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF111827),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Rules Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Rules',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111827),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildRuleItem(
+                        number: '1',
+                        text:
+                            'Duration can be edited during the first 15 days only. After day 15 it is locked in every case.',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildRuleItem(
+                        number: '2',
+                        text:
+                            "Removing a client before day 15 deducts consumed days and the admin fee (300 EGP), then needs the client's approval.",
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // PLANS Section Title
+                const Text(
+                  'PLANS',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // PLANS Grid (2x2)
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _plans.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 1.38,
+                  ),
+                  itemBuilder: (context, index) {
+                    final plan = _plans[index];
+                    return _buildPlanCard(plan);
+                  },
+                ),
+                const SizedBox(height: 22),
+
+                // CLIENTS Section Title
+                const Text(
+                  'CLIENTS',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // CLIENTS List
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _clients.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final client = _clients[index];
+                    return ClientCard(
+                      client: client,
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ClientDetailScreen(client: client),
+                          ),
+                        );
+                        setState(() {});
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRuleItem({required String number, required String text}) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F5F7),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              number,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: Color(0xFF374151),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 13,
+                height: 1.4,
+                color: Color(0xFF374151),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlanCard(PlanModel plan) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                plan.title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF6B7280),
+                ),
+              ),
+              InkWell(
+                onTap: () => _showEditPriceBottomSheet(plan),
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F5F7),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.edit_outlined,
+                    size: 16,
+                    color: Color(0xFF374151),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            _formatNumber(plan.price),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF111827),
+            ),
+          ),
+          Text(
+            'EGP · ${plan.durationDays} days',
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF9CA3AF),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// الـ Widget الخاص بكارت العميل (Clickable)
+class ClientCard extends StatelessWidget {
+  final ClientModel client;
+  final VoidCallback onTap;
+
+  const ClientCard({
+    super.key,
+    required this.client,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color badgeBgColor =
+        client.isEditable ? const Color(0xFFD9F5EE) : const Color(0xFFFCE4E4);
+    final Color badgeTextColor =
+        client.isEditable ? const Color(0xFF1B8A75) : const Color(0xFFD65A5A);
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Row(
+            children: [
+              // Avatar
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF3F4F6),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  client.initials,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: Color.fromARGB(255, 231, 136, 102),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Name & Subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      client.name,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF111827),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      client.subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF9CA3AF),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Status Badge
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: badgeBgColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  client.statusLabel,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: badgeTextColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
