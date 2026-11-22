@@ -3,8 +3,174 @@ import 'package:no_pain_no_grad/gym/core/models/occupancy/occupancy_store.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/gym_occupancy/models/crowd_cycle_model.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/gym_occupancy/models/crowd_level_model.dart';
 
-class GymOccupancyPage extends StatelessWidget {
+//  اتحولت لـ StatefulWidget عشان نقدر نتحكم في فتح وقفل القائمة بـ setState
+class GymOccupancyPage extends StatefulWidget {
   const GymOccupancyPage({Key? key}) : super(key: key);
+
+  @override
+  State<GymOccupancyPage> createState() => _GymOccupancyPageState();
+}
+
+class _GymOccupancyPageState extends State<GymOccupancyPage> {
+  //  متغير الحالة ودالة فتح وقفل القائمة
+  bool _isDrawerOpen = false;
+  void _toggleDrawer() => setState(() => _isDrawerOpen = !_isDrawerOpen);
+
+  //  القائمة الجانبية (Drawer Overlay)
+  Widget _buildDrawerOverlay() {
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: _toggleDrawer,
+          child: Container(color: Colors.black.withOpacity(0.35)),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: 300,
+            height: double.infinity,
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 52, 16, 26),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: const TextSpan(
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+                    children: [
+                      TextSpan(text: "PLATE ", style: TextStyle(color: Color(0xFF1D2733))),
+                      TextSpan(text: "Admin", style: TextStyle(color: Color(0xFFF4877B))),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFE3ECEA)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFDE0DC),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text("DK",
+                            style: TextStyle(color: Color(0xFFF4877B), fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 10),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Dr. Khaled", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text("Zamalek Club · Admin",
+                              style: TextStyle(fontSize: 11, color: Color(0xFF6B7886))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildDrawerItem(
+                  icon: Icons.dashboard_outlined,
+                  title: "Overview",
+                  isSelected: false,
+                  onTap: () {
+                    _toggleDrawer();
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) => AdminOverviewPage()));
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.group_outlined,
+                  title: "User Management",
+                  isSelected: false,
+                  onTap: () {
+                    _toggleDrawer();
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) => UsersManagementPage()));
+                  },
+                ),
+                // الصفحة الحالية (Gym Occupancy) هي المحددة
+                _buildDrawerItem(
+                  icon: Icons.person_outline,
+                  title: "Gym Occupancy",
+                  isSelected: true,
+                  onTap: _toggleDrawer,
+                ),
+                _buildDrawerItem(
+                  icon: Icons.local_bar_outlined,
+                  title: "Gym & Bar",
+                  isSelected: false,
+                  onTap: () {
+                    _toggleDrawer();
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) => GymBarPage()));
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.local_offer_outlined,
+                  title: "Price History",
+                  isSelected: false,
+                  onTap: () {
+                    _toggleDrawer();
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) => EditPricesPage()));
+                  },
+                ),
+                _buildDrawerItem(
+                  icon: Icons.credit_card_outlined,
+                  title: "Subscriptions & Policies",
+                  isSelected: false,
+                  onTap: () {
+                    _toggleDrawer();
+                    // Navigator.push(context, MaterialPageRoute(builder: (_) => PoliciesScreen()));
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: 50,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        margin: const EdgeInsets.only(bottom: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF56C5B1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 22, color: isSelected ? Colors.white : const Color(0xFF1D2733)),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF1D2733),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,34 +180,39 @@ class GymOccupancyPage extends StatelessWidget {
       listenable: store,
       builder: (context, _) {
         return Scaffold(
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color.fromARGB(255, 152, 238, 224),
-                  Color.fromRGBO(182, 239, 228, 1),
-                  Color.fromARGB(255, 209, 238, 231),
-                ],
-              ),
-            ),
-            child: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    _buildHeader(context),
-                    const SizedBox(height: 16),
-                    _buildMainCard(store),
-                    const SizedBox(height: 16),
-                    _buildLevelsCard(store),
-                  ],
+          body: Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.fromARGB(255, 152, 238, 224),
+                      Color.fromRGBO(182, 239, 228, 1),
+                      Color.fromARGB(255, 209, 238, 231),
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildHeader(context),
+                        const SizedBox(height: 16),
+                        _buildMainCard(store),
+                        const SizedBox(height: 16),
+                        _buildLevelsCard(store),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+              if (_isDrawerOpen) _buildDrawerOverlay(),
+            ],
           ),
         );
       },
@@ -59,9 +230,7 @@ class GymOccupancyPage extends StatelessWidget {
                   color: Colors.white, borderRadius: BorderRadius.circular(12)),
               child: IconButton(
                   icon: const Icon(Icons.menu, color: Colors.black87),
-                  onPressed: () {
-                  
-                  }),
+                  onPressed: _toggleDrawer),
             ),
             const SizedBox(width: 12),
             const Text('Gym occupancy',
