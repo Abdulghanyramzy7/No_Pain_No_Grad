@@ -10,6 +10,155 @@ class PoliciesScreen extends StatefulWidget {
 }
 
 class _PoliciesScreenState extends State<PoliciesScreen> {
+    bool _isDrawerOpen = false;
+
+void _toggleDrawer() => setState(() => _isDrawerOpen = !_isDrawerOpen);
+
+Widget _buildDrawerOverlay() {
+  return Stack(
+    children: [
+      GestureDetector(
+        onTap: _toggleDrawer,
+        child: Container(color: Colors.black.withOpacity(0.35)),
+      ),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          width: 300,
+          height: double.infinity,
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(16, 52, 16, 26),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: const TextSpan(
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+                  children: [
+                    TextSpan(text: "PLATE ", style: TextStyle(color: Color(0xFF1D2733))),
+                    TextSpan(text: "Admin", style: TextStyle(color: Color(0xFFF4877B))),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 15),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE3ECEA)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFDE0DC),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text("DK",
+                          style: TextStyle(color: Color(0xFFF4877B), fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 10),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Dr. Khaled", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text("Zamalek Club · Admin",
+                            style: TextStyle(fontSize: 11, color: Color(0xFF6B7886))),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildDrawerItem(
+                icon: Icons.dashboard_outlined,
+                title: "Overview",
+                isSelected: false,
+                onTap: () {
+                  _toggleDrawer();
+                  // Navigator.push(context, MaterialPageRoute(builder: (_) => AdminOverviewPage()));
+                },
+              ),
+              _buildDrawerItem(
+                icon: Icons.group_outlined,
+                title: "User Management",
+                isSelected: false,
+                onTap: () {
+                  _toggleDrawer();
+                  // Navigator.push(context, MaterialPageRoute(builder: (_) => UsersManagementPage()));
+                },
+              ),
+              _buildDrawerItem(icon: Icons.person_outline, title: "Gym Occupancy", isSelected: false, onTap: () {}),
+              _buildDrawerItem(
+                icon: Icons.local_bar_outlined,
+                title: "Gym & Bar",
+                isSelected: false,
+                onTap: () {
+                  _toggleDrawer();
+                  // Navigator.push(context, MaterialPageRoute(builder: (_) => GymBarPage()));
+                },
+              ),
+              _buildDrawerItem(
+                icon: Icons.local_offer_outlined,
+                title: "Price History",
+                isSelected: false,
+                onTap: () {
+                  _toggleDrawer();
+                  // Navigator.push(context, MaterialPageRoute(builder: (_) => EditPricesPage()));
+                },
+              ),
+              _buildDrawerItem(
+                icon: Icons.credit_card_outlined,
+                title: "Subscriptions & Policies",
+                isSelected: true,
+                onTap: _toggleDrawer,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _buildDrawerItem({
+  required IconData icon,
+  required String title,
+  required bool isSelected,
+  required VoidCallback onTap,
+}) {
+  return InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(12),
+    child: Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      margin: const EdgeInsets.only(bottom: 6),
+      decoration: BoxDecoration(
+        color: isSelected ? const Color(0xFF56C5B1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 22, color: isSelected ? Colors.white : const Color(0xFF1D2733)),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : const Color(0xFF1D2733),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
   // بيانات الخطط (قابلة لتعديل السعر)
   final List<PlanModel> _plans = PlansRepository.plans;
   // بيانات العملاء من التصميم
@@ -149,166 +298,170 @@ class _PoliciesScreenState extends State<PoliciesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(255, 152, 238, 224),
-              Color.fromRGBO(182, 239, 228, 1),
-              Color.fromARGB(255, 209, 238, 231),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header (Menu Icon + Policies Title)
-                Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.menu, color: Color(0xFF1A1D1F)),
-                        onPressed: () {},
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    const Text(
-                      'Policies',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF111827),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Rules Card
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Rules',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildRuleItem(
-                        number: '1',
-                        text:
-                            'Duration can be edited during the first 15 days only. After day 15 it is locked in every case.',
-                      ),
-                      const SizedBox(height: 10),
-                      _buildRuleItem(
-                        number: '2',
-                        text:
-                            "Removing a client before day 15 deducts consumed days and the admin fee (300 EGP), then needs the client's approval.",
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // PLANS Section Title
-                const Text(
-                  'PLANS',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.1,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // PLANS Grid (2x2)
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _plans.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.38,
-                  ),
-                  itemBuilder: (context, index) {
-                    final plan = _plans[index];
-                    return _buildPlanCard(plan);
-                  },
-                ),
-                const SizedBox(height: 22),
-
-                // CLIENTS Section Title
-                const Text(
-                  'CLIENTS',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.1,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // CLIENTS List
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _clients.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final client = _clients[index];
-                    return ClientCard(
-                      client: client,
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ClientDetailScreen(client: client),
-                          ),
-                        );
-                        setState(() {});
-                      },
-                    );
-                  },
-                ),
+      body: Stack(
+        children:[ Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color.fromARGB(255, 152, 238, 224),
+                Color.fromRGBO(182, 239, 228, 1),
+                Color.fromARGB(255, 209, 238, 231),
               ],
             ),
           ),
-        ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header (Menu Icon + Policies Title)
+                  Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.menu, color: Color(0xFF1A1D1F)),
+                          onPressed: _toggleDrawer,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      const Text(
+                        'Policies',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF111827),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+        
+                  // Rules Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Rules',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF111827),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildRuleItem(
+                          number: '1',
+                          text:
+                              'Duration can be edited during the first 15 days only. After day 15 it is locked in every case.',
+                        ),
+                        const SizedBox(height: 10),
+                        _buildRuleItem(
+                          number: '2',
+                          text:
+                              "Removing a client before day 15 deducts consumed days and the admin fee (300 EGP), then needs the client's approval.",
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+        
+                  // PLANS Section Title
+                  const Text(
+                    'PLANS',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.1,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+        
+                  // PLANS Grid (2x2)
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _plans.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.38,
+                    ),
+                    itemBuilder: (context, index) {
+                      final plan = _plans[index];
+                      return _buildPlanCard(plan);
+                    },
+                  ),
+                  const SizedBox(height: 22),
+        
+                  // CLIENTS Section Title
+                  const Text(
+                    'CLIENTS',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.1,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+        
+                  // CLIENTS List
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _clients.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final client = _clients[index];
+                      return ClientCard(
+                        client: client,
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ClientDetailScreen(client: client),
+                            ),
+                          );
+                          setState(() {});
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ),
+        if(_isDrawerOpen) _buildDrawerOverlay()
+        ]
       ),
     );
   }

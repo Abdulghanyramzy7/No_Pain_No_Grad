@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:no_pain_no_grad/gym/core/models/exercise_model.dart';
 
 class WeightsScreen extends StatefulWidget {
-  const WeightsScreen({super.key});
+  const WeightsScreen({Key? key}) : super(key: key);
 
   @override
   State<WeightsScreen> createState() => _WeightsScreenState();
@@ -11,7 +12,7 @@ class WeightsScreen extends StatefulWidget {
 class _WeightsScreenState extends State<WeightsScreen> {
   String _globalSelectedCategory = 'Barbell';
 
-  // 🌟 قائمة التمارين فقط لا غير (بناءً على طلبك)
+  //Exercise List
   final List<ExerciseModel> _exercises = [
     ExerciseModel(
         id: '1',

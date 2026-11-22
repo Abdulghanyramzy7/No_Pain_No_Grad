@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/home.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/weights.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -10,9 +12,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   int daysleft=28;
-  int _currentIndex = 4;
+  late int _currentIndex;
   @override
   Widget build(BuildContext context) {
+    var index = 3; // الـ index يبدأ بـ 3 لأننا واقفين على صفحة الـ Coach
+    _currentIndex = index;
     return Scaffold(
       body: Container(
        height: double.infinity,
@@ -271,23 +275,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
-       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xffFF7F73),
-        unselectedItemColor: const Color(0xff6B7886),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: "Train"),
-          BottomNavigationBarItem(icon: Icon(Icons.local_bar), label: "Bar"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Coach"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Profile"),
-        ],
+      
+      // شريط التنقل السفلي مع ربطه بصفحة البار وباقي الصفحات
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: const Color(0xFFF4877B),
+          unselectedItemColor: const Color(0xFF8C98A4),
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+          unselectedLabelStyle: const TextStyle(fontSize: 11),
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+
+            // التنقل بناءً على الزرار المختار
+            if (index == 0) {
+              Get.off(() => const CustomerHome());
+            }
+            if (index == 1) {
+              Get.off(() => const WeightsScreen());
+            }
+            if (index == 2) {
+           //   Get.off(() => const BarPage());
+            }
+            if (index == 3) {
+             // Get.off(() => const TrainersListPage());
+            }
+            if (index == 4) {
+              Get.off(() => const ProfileScreen());
+            }
+            // يمكنك إضافة باقي الصفحات هنا لو حابة (Home, Train, Profile)
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.fitness_center),
+              label: 'Train',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.local_drink_rounded),
+              label: 'Bar',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: 'Coach',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
