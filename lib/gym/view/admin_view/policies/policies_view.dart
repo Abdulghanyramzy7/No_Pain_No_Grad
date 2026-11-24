@@ -271,6 +271,7 @@ Widget _buildDrawerItem({
                     if (newPrice != null && newPrice > 0) {
                       setState(() {
                         plan.price = newPrice;
+                        PlansRepository.savePrice(plan);
                       });
                       Navigator.pop(context);
                     }

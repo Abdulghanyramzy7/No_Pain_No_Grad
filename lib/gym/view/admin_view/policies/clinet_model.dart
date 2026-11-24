@@ -1,3 +1,5 @@
+import 'package:hive/hive.dart';
+
 class ClientModel {
   final String name;
    String planType;
@@ -99,5 +101,17 @@ class PlansRepository {
 
   static PlanModel byMonths(int months) =>
       plans.firstWhere((p) => p.months == months);
+
+static void loadSavedPrices() {
+    final box = Hive.box('gymBox');
+    for (final p in plans) {
+      final saved = box.get('price_${p.title}');
+      if (saved != null) p.price = saved as int;
+    }
+  }
+
+  static void savePrice(PlanModel p) {
+    Hive.box('gymBox').put('price_${p.title}', p.price);
+  }
 }
 

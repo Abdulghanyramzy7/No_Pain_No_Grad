@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/gym_occupancy/models/crowd_level_model.dart';
 
 class OccupancyStore extends ChangeNotifier {
@@ -31,6 +32,22 @@ class OccupancyStore extends ChangeNotifier {
     levels[2].minLimit = levels[1].maxLimit;
     levels[2].maxLimit = maxPeople;
   }
+  void _save() {
+    final box = Hive.box('gymBox');
+    box.put('occ_current', currentPeople);
+    box.put('occ_max', maxPeople);
+    box.put('occ_l0', levels[0].maxLimit);
+    box.put('occ_l1', levels[1].maxLimit);
+  }
+
+  void load() {
+    final box = Hive.box('gymBox');
+    currentPeople = box.get('occ_current', defaultValue: currentPeople);
+    maxPeople = box.get('occ_max', defaultValue: maxPeople);
+    levels[0].maxLimit = box.get('occ_l0', defaultValue: levels[0].maxLimit);
+    levels[1].maxLimit = box.get('occ_l1', defaultValue: levels[1].maxLimit);
+    _sync();
+  }
 
   double get percentage =>
       maxPeople == 0 ? 0 : (currentPeople / maxPeople).clamp(0.0, 1.0);
@@ -46,6 +63,7 @@ class OccupancyStore extends ChangeNotifier {
   // ---- دوال الأدمن فقط ----
   void setCurrent(int v) {
     currentPeople = v.clamp(0, maxPeople);
+    _save();
     notifyListeners();
   }
 
@@ -59,6 +77,7 @@ class OccupancyStore extends ChangeNotifier {
       if (l.maxLimit > maxPeople - 1) l.maxLimit = maxPeople - 1;
     }
     _sync();
+     _save();
     notifyListeners();
   }
 
@@ -67,6 +86,7 @@ class OccupancyStore extends ChangeNotifier {
     if (levels[index].maxLimit < upper) {
       levels[index].incrementLimit();
       _sync();
+       _save();
       notifyListeners();
     }
   }
@@ -74,6 +94,7 @@ class OccupancyStore extends ChangeNotifier {
   void decrementLevel(int index) {
     levels[index].decrementLimit();
     _sync();
+     _save();
     notifyListeners();
   }
 }
