@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
 import 'package:no_pain_no_grad/gym/core/models/exercise_model.dart';
 
 class WeightsScreen extends StatefulWidget {
@@ -12,6 +13,19 @@ class WeightsScreen extends StatefulWidget {
 class _WeightsScreenState extends State<WeightsScreen> {
   String _globalSelectedCategory = 'Barbell';
 
+final box = Hive.box('gymBox');
+String _key(ExerciseModel e) => '${e.id}_$_globalSelectedCategory';
+  
+  @override
+void initState() {
+  super.initState();
+  for (final e in _exercises) {
+    for (final c in ['Barbell', 'Machine', 'Dumbbell']) {
+      final saved = box.get('${e.id}_$c');
+      if (saved != null) e.setWeight(c, saved as double);
+    }
+  }
+}
   //Exercise List
   final List<ExerciseModel> _exercises = [
     ExerciseModel(
@@ -350,6 +364,7 @@ class _WeightsScreenState extends State<WeightsScreen> {
               height: 48,
               child: ElevatedButton(
                 onPressed: () {
+                  box.put(_key(exercise), currentWeight);
                   setState(() {
                     exercise.isExpanded = false;
                   });

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/home.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/profile.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/weights.dart';
 
 class CheckInOutScreen extends StatefulWidget {
   final int initialTab;
+  
   const CheckInOutScreen({Key? key, this.initialTab = 0}) : super(key: key);
 
   @override
@@ -23,6 +25,7 @@ class _CheckInOutScreenState extends State<CheckInOutScreen> {
   void initState() {
     super.initState();
     _selectedTab = widget.initialTab;
+    _isAutoCheckOutOn = Hive.box('gymBox').get('autoCheckOut', defaultValue: true);
 
     // استخدام الطريقة التي طلبتِها لتحديد الـ index (يمكنك تغيير الرقم 3 حسب رقم الصفحة في النافيغيشن بار)
     var index = 3; 
@@ -187,6 +190,7 @@ class _CheckInOutScreenState extends State<CheckInOutScreen> {
                                     onChanged: (val) {
                                       setState(() {
                                         _isAutoCheckOutOn = val;
+                                        Hive.box('gymBox').put('autoCheckOut', val);
                                       });
                                     },
                                   ),
