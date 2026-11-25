@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:no_pain_no_grad/gym/core/widgets/check_in_slider.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/check_in_out.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/check_in_out/check_in_out.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/profile.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/weights.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/weights/weights.dart';
 
 class CustomerHome extends StatefulWidget {
   const CustomerHome({super.key});
@@ -368,7 +368,7 @@ class _CustomerHomeState extends State<CustomerHome> {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: _currentIndex,
+          currentIndex: 0,
           backgroundColor: Colors.white,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
@@ -377,10 +377,7 @@ class _CustomerHomeState extends State<CustomerHome> {
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
           unselectedLabelStyle: const TextStyle(fontSize: 11),
           onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-
+           
             // التنقل بناءً على الزرار المختار
             if (index == 0) {
               Get.off(() => const CustomerHome());

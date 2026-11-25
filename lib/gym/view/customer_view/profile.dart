@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/home.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/weights.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/weights/weights.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -289,7 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: _currentIndex,
+          currentIndex: 4,
           backgroundColor: Colors.white,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
@@ -298,9 +298,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
           unselectedLabelStyle: const TextStyle(fontSize: 11),
           onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
+            
 
             // التنقل بناءً على الزرار المختار
             if (index == 0) {
