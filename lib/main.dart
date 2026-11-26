@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/policies/policies_view.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies_view.dart';
 
 
 void main() {
