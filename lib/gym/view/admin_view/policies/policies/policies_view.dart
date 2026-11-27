@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/policies/client_detail_view.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/policies/client_detail/client_detail_view.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/policies/clinet_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'cubit/policies_cubit.dart';
+import 'cubit/policies_state.dart';
 
-class PoliciesScreen extends StatefulWidget {
+class PoliciesScreen extends StatelessWidget {
   const PoliciesScreen({super.key});
 
   @override
-  State<PoliciesScreen> createState() => _PoliciesScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => PoliciesCubit(),
+      child: const _PoliciesView(),
+    );
+  }
 }
 
-class _PoliciesScreenState extends State<PoliciesScreen> {
+class _PoliciesView extends StatefulWidget {
+  const _PoliciesView();
+
+  @override
+  State<_PoliciesView> createState() => _PoliciesViewState();
+}
+
+
+class _PoliciesViewState extends State<_PoliciesView> {
     bool _isDrawerOpen = false;
 
 void _toggleDrawer() => setState(() => _isDrawerOpen = !_isDrawerOpen);
@@ -159,44 +175,10 @@ Widget _buildDrawerItem({
     ),
   );
 }
-  // بيانات الخطط (قابلة لتعديل السعر)
-  final List<PlanModel> _plans = PlansRepository.plans;
-  // بيانات العملاء من التصميم
-  final List<ClientModel> _clients = [
-    ClientModel(
-      name: 'Sara Mahmoud',
-      planType: 'Quarterly',
-      currentDay: 12,
-    ),
-    ClientModel(
-      name: 'Youssef Ammar',
-      planType: 'Monthly',
-      currentDay: 17,
-    ),
-    ClientModel(
-      name: 'Marwa Salem',
-      planType: 'Monthly',
-      currentDay: 3,
-    ),
-    ClientModel(
-      name: 'Khawla Ali',
-      planType: 'Monthly',
-      currentDay: 18,
-    ),
-    ClientModel(
-      name: 'Hager Ahmed',
-      planType: 'Monthly',
-      currentDay: 22,
-    ),
-    ClientModel(
-      name: 'Kadeja Ahmed',
-      planType: 'Monthly',
-      currentDay: 5,
-    ),
-  ];
 
   // فتح Bottom Sheet لتعديل سعر الخطة
   void _showEditPriceBottomSheet(PlanModel plan) {
+    final cubit = context.read<PoliciesCubit>();
     final TextEditingController priceController =
         TextEditingController(text: plan.price.toString());
 
@@ -269,10 +251,7 @@ Widget _buildDrawerItem({
                   onPressed: () {
                     final newPrice = int.tryParse(priceController.text.trim());
                     if (newPrice != null && newPrice > 0) {
-                      setState(() {
-                        plan.price = newPrice;
-                        PlansRepository.savePrice(plan);
-                      });
+                      cubit.updatePrice(plan, newPrice);
                       Navigator.pop(context);
                     }
                   },
@@ -298,6 +277,10 @@ Widget _buildDrawerItem({
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<PoliciesCubit, PoliciesState>(
+  builder: (context, state) {
+    final _plans = state.plans;
+    final _clients = state.clients;
     return Scaffold(
       body: Stack(
         children:[ Container(
@@ -451,7 +434,7 @@ Widget _buildDrawerItem({
                                   ClientDetailScreen(client: client),
                             ),
                           );
-                          setState(() {});
+                       context.read<PoliciesCubit>().refresh();
                         },
                       );
                     },
@@ -464,6 +447,8 @@ Widget _buildDrawerItem({
         if(_isDrawerOpen) _buildDrawerOverlay()
         ]
       ),
+   );
+      },
     );
   }
 

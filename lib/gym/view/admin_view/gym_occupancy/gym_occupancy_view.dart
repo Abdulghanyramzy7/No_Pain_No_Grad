@@ -1,17 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:no_pain_no_grad/gym/core/models/occupancy/occupancy_store.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'cubit/gym_occupancy_cubit.dart';
+import 'cubit/gym_occupancy_state.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/gym_occupancy/models/crowd_cycle_model.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/gym_occupancy/models/crowd_level_model.dart';
 
 //  اتحولت لـ StatefulWidget عشان نقدر نتحكم في فتح وقفل القائمة بـ setState
-class GymOccupancyPage extends StatefulWidget {
+class GymOccupancyPage extends StatelessWidget {
   const GymOccupancyPage({Key? key}) : super(key: key);
 
   @override
-  State<GymOccupancyPage> createState() => _GymOccupancyPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => GymOccupancyCubit(),
+      child: const _GymOccupancyView(),
+    );
+  }
 }
 
-class _GymOccupancyPageState extends State<GymOccupancyPage> {
+class _GymOccupancyView extends StatefulWidget {
+  const _GymOccupancyView();
+
+  @override
+  State<_GymOccupancyView> createState() => _GymOccupancyViewState();
+}
+
+class _GymOccupancyViewState extends State<_GymOccupancyView> {
   //  متغير الحالة ودالة فتح وقفل القائمة
   bool _isDrawerOpen = false;
   void _toggleDrawer() => setState(() => _isDrawerOpen = !_isDrawerOpen);
@@ -174,11 +188,8 @@ class _GymOccupancyPageState extends State<GymOccupancyPage> {
 
   @override
   Widget build(BuildContext context) {
-    final store = OccupancyStore.instance;
-
-    return ListenableBuilder(
-      listenable: store,
-      builder: (context, _) {
+    return BlocBuilder<GymOccupancyCubit, GymOccupancyState>(
+      builder: (context, state) {
         return Scaffold(
           body: Stack(
             children: [
@@ -203,9 +214,9 @@ class _GymOccupancyPageState extends State<GymOccupancyPage> {
                       children: [
                         _buildHeader(context),
                         const SizedBox(height: 16),
-                        _buildMainCard(store),
+                        _buildMainCard(state),
                         const SizedBox(height: 16),
-                        _buildLevelsCard(store),
+                        _buildLevelsCard(state),
                       ],
                     ),
                   ),
@@ -252,9 +263,9 @@ class _GymOccupancyPageState extends State<GymOccupancyPage> {
     );
   }
 
-  Widget _buildMainCard(OccupancyStore store) {
-    final CrowdLevel status = store.currentLevel;
-    final double percentage = store.percentage;
+  Widget _buildMainCard(GymOccupancyState state) {
+    final CrowdLevel status = state.currentLevel;
+    final double percentage = state.percentage;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -266,8 +277,8 @@ class _GymOccupancyPageState extends State<GymOccupancyPage> {
             height: 180,
             child: crowd_circle(
               percentage: percentage,
-              currentPeople: store.currentPeople,
-              maxPeople: store.maxPeople,
+              currentPeople: state.currentPeople,
+              maxPeople: state.maxPeople,
               statusColor: status.color,
               statusTitle: status.title,
             ),
@@ -302,19 +313,19 @@ class _GymOccupancyPageState extends State<GymOccupancyPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Max: ${store.maxPeople}',
+                Text('Max: ${state.maxPeople}',
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 Row(
                   children: [
                     IconButton(
                       icon: const Icon(Icons.remove_circle_outline,
                           color: Colors.redAccent),
-                      onPressed: () => store.changeMax(-5),
+                      onPressed: () => context.read<GymOccupancyCubit>().changeMax(-5),
                     ),
                     IconButton(
                       icon: const Icon(Icons.add_circle_outline,
                           color: Colors.green),
-                      onPressed: () => store.changeMax(5),
+                      onPressed: () => context.read<GymOccupancyCubit>().changeMax(5),
                     ),
                   ],
                 ),
@@ -324,12 +335,12 @@ class _GymOccupancyPageState extends State<GymOccupancyPage> {
           const SizedBox(height: 16),
 
           Slider(
-            value: store.currentPeople.toDouble(),
+            value: state.currentPeople.toDouble(),
             min: 0,
-            max: store.maxPeople.toDouble(),
+            max: state.maxPeople.toDouble(),
             activeColor: status.color,
             inactiveColor: Colors.grey.shade300,
-            onChanged: (v) => store.setCurrent(v.toInt()),
+            onChanged: (v) => context.read<GymOccupancyCubit>().setCurrent(v.toInt()),
           ),
           const Text('Drag to preview how each level looks',
               style: TextStyle(color: Colors.grey, fontSize: 12)),
@@ -338,8 +349,8 @@ class _GymOccupancyPageState extends State<GymOccupancyPage> {
     );
   }
 
-  Widget _buildLevelsCard(OccupancyStore store) {
-    final levels = store.levels;
+  Widget _buildLevelsCard(GymOccupancyState state) {
+    final levels = state.levels;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -387,11 +398,11 @@ class _GymOccupancyPageState extends State<GymOccupancyPage> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.remove, size: 18),
-                        onPressed: () => store.decrementLevel(i),
+                        onPressed: () => context.read<GymOccupancyCubit>().decrementLevel(i),
                       ),
                       IconButton(
                         icon: const Icon(Icons.add, size: 18),
-                        onPressed: () => store.incrementLevel(i),
+                        onPressed: () => context.read<GymOccupancyCubit>().incrementLevel(i),
                       ),
                     ],
                   )

@@ -1,17 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/policies/remove_client_view.dart';
-import 'clinet_model.dart';
+import '../clinet_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'cubit/client_detail_cubit.dart';
+import 'cubit/client_detail_state.dart';
 
-class ClientDetailScreen extends StatefulWidget {
+class ClientDetailScreen extends StatelessWidget {
   final ClientModel client;
 
   const ClientDetailScreen({super.key, required this.client});
 
   @override
-  State<ClientDetailScreen> createState() => _ClientDetailScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ClientDetailCubit(
+        PlansRepository.byTitle(client.planType).months,
+      ),
+      child: _ClientDetailView(client: client),
+    );
+  }
 }
 
-class _ClientDetailScreenState extends State<ClientDetailScreen> {
+class _ClientDetailView extends StatefulWidget {
+  final ClientModel client;
+
+  const _ClientDetailView({required this.client});
+
+  @override
+  State<_ClientDetailView> createState() => _ClientDetailViewState();
+}
+
+class _ClientDetailViewState extends State<_ClientDetailView> {
   bool _isDrawerOpen = false;
 
 void _toggleDrawer() => setState(() => _isDrawerOpen = !_isDrawerOpen);
@@ -161,20 +180,14 @@ Widget _buildDrawerItem({
     ),
   );
 }
-  static const List<int> _allowedMonths = [1, 3, 6, 12];
-  late int durationMonths;
-  bool isDurationUpdated = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // تعيين قيمة افتراضية لعدد الشهور حسب نوع الخطة
-    durationMonths = PlansRepository.byTitle(widget.client.planType).months;
-  }
-
   @override
   Widget build(BuildContext context) {
     final client = widget.client;
+
+    return BlocBuilder<ClientDetailCubit, ClientDetailState>(
+      builder: (context, state) {
+    final durationMonths = state.durationMonths;
+    final isDurationUpdated = state.isDurationUpdated;
 
     return Scaffold(
       body: Stack(
@@ -422,14 +435,8 @@ Widget _buildDrawerItem({
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               IconButton(
-                                onPressed: () {
-                                  final i =
-                                      _allowedMonths.indexOf(durationMonths);
-                                  if (i > 0) {
-                                    setState(() =>
-                                        durationMonths = _allowedMonths[i - 1]);
-                                  }
-                                },
+                                onPressed: () =>
+                                    context.read<ClientDetailCubit>().decrease(),
                                 icon: const Icon(Icons.remove),
                                 style: IconButton.styleFrom(
                                   backgroundColor: const Color(0xFFF3F4F6),
@@ -446,14 +453,8 @@ Widget _buildDrawerItem({
                               ),
                               const SizedBox(width: 24),
                               IconButton(
-                                onPressed: () {
-                                  final i =
-                                      _allowedMonths.indexOf(durationMonths);
-                                  if (i < _allowedMonths.length - 1) {
-                                    setState(() =>
-                                        durationMonths = _allowedMonths[i + 1]);
-                                  }
-                                },
+                                onPressed: () =>
+                                    context.read<ClientDetailCubit>().increase(),
                                 icon: const Icon(Icons.add),
                                 style: IconButton.styleFrom(
                                   backgroundColor: const Color(0xFFF3F4F6),
@@ -475,12 +476,10 @@ Widget _buildDrawerItem({
                                 elevation: 0,
                               ),
                               onPressed: () {
-                                setState(() {
-                                  widget.client.planType =
-                                      PlansRepository.byMonths(durationMonths)
-                                          .title;
-                                  isDurationUpdated = true;
-                                });
+                                widget.client.planType =
+                                    PlansRepository.byMonths(durationMonths)
+                                        .title;
+                                context.read<ClientDetailCubit>().markUpdated();
                               },
                               child: const Text(
                                 'Save duration',
@@ -566,6 +565,8 @@ Widget _buildDrawerItem({
         if(_isDrawerOpen) _buildDrawerOverlay()
         ]
       ),
+    );
+      },
     );
   }
 }
