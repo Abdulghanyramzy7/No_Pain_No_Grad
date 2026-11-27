@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 import 'package:no_pain_no_grad/gym/core/const/appgradients.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/hive_helper/hive_helper.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/view/Edit_Prices&History_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/overview/view/overview_page.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/view/usermanagement_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies_view.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_controller/items_controller.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/cubit/cubit/bar_cubit.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/model/items_model.dart';
@@ -13,8 +15,17 @@ import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/model/items_model
 class GymBarPage extends StatelessWidget {
   GymBarPage({super.key});
 
-  // كونترولر المنتجات لسه GetX زي ما هو
-  final ItemsController itemsController = Get.put(ItemsController());
+  final ItemsController itemsController = Get.isRegistered<ItemsController>()
+      ? Get.find<ItemsController>()
+      : Get.put(ItemsController());
+
+  void _openEditPricesPage(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const EditPricesPage(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +34,12 @@ class GymBarPage extends StatelessWidget {
     return Scaffold(
       body: BlocBuilder<BarCubit, BarState>(
         builder: (context, state) {
-          final bool isBarServiceActive = HiveHelper.isBarServiceActive;
-          final int selectedTab = HiveHelper.selectedTab;
+          final bool isBarServiceActive = AdminbarHiveHelper.isBarServiceActive;
+          final int selectedTab = AdminbarHiveHelper.selectedTab;
           final bool isDrawerOpen = cubit.isDrawerOpen;
 
           return Stack(
             children: [
-              // المحتوى الأساسي للصفحة
               Container(
                 decoration: const BoxDecoration(
                   gradient: AppGradients.plateBackground,
@@ -37,7 +47,6 @@ class GymBarPage extends StatelessWidget {
                 child: SafeArea(
                   child: Column(
                     children: [
-                      // 1. الهيدر العلوي (ثابت)
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 10),
@@ -78,13 +87,10 @@ class GymBarPage extends StatelessWidget {
                           ],
                         ),
                       ),
-
-                      // الأجزاء الثابتة في الأعلى (كارت تفعيل البار + التنبيه + أزرار التبويبات)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           children: [
-                            // كارت تفعيل أو إيقاف خدمة البار
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -131,10 +137,7 @@ class GymBarPage extends StatelessWidget {
                                 ],
                               ),
                             ),
-
                             const SizedBox(height: 12),
-
-                            // تنبيه إيقاف البار
                             if (!isBarServiceActive)
                               Container(
                                 margin: const EdgeInsets.only(bottom: 12),
@@ -146,7 +149,7 @@ class GymBarPage extends StatelessWidget {
                                       color: const Color(0xFFFFD4CE)),
                                 ),
                                 child: const Text(
-                                  "The bar is off. The whole bar part is removed from the app for admins, bar workers and clients, including Price History in the menu and the Bar worker role.",
+                                  "The bar is off. The whole bar part is removed from the app for admins, bar workers and clients, including Edit Prices & History in the menu and the Bar worker role.",
                                   style: TextStyle(
                                     color: Color(0xFFD9483B),
                                     fontSize: 13.5,
@@ -155,8 +158,6 @@ class GymBarPage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-
-                            // أزرار التبويبات (تظهر فقط إذا كان البار شغالاً)
                             if (isBarServiceActive)
                               Container(
                                 padding: const EdgeInsets.all(4),
@@ -178,10 +179,7 @@ class GymBarPage extends StatelessWidget {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 12),
-
-                      // المحتوى الديناميكي للتبويبات (يأخذ المساحة المتبقية لضمان بقاء زر Edit prices ثابتاً بالأسفل)
                       Expanded(
                         child: !isBarServiceActive
                             ? const SizedBox.shrink()
@@ -197,14 +195,12 @@ class GymBarPage extends StatelessWidget {
                                             horizontal: 16),
                                         child: _buildIngredientsView(),
                                       )
-                                    : _buildPricesViewWithFixedButton(),
+                                    : _buildPricesViewWithFixedButton(context),
                       ),
                     ],
                   ),
                 ),
               ),
-
-              // القائمة الجانبية (Drawer Menu)
               if (isDrawerOpen)
                 Stack(
                   children: [
@@ -291,7 +287,11 @@ class GymBarPage extends StatelessWidget {
                               isSelected: false,
                               onTap: () {
                                 cubit.toggleDrawer();
-                                Get.to(() => AdminOverviewPage());
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const AdminOverviewPage(),
+                                  ),
+                                );
                               },
                             ),
                             _buildDrawerItem(
@@ -300,34 +300,57 @@ class GymBarPage extends StatelessWidget {
                               isSelected: false,
                               onTap: () {
                                 cubit.toggleDrawer();
-                                Get.to(() => UsersManagementPage());
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const UsersManagementPage(),
+                                  ),
+                                );
                               },
                             ),
                             _buildDrawerItem(
-                                icon: Icons.person_outline,
-                                title: "Gym Occupancy",
-                                isSelected: false,
-                                onTap: () {}),
+                              icon: Icons.person_outline,
+                              title: "Gym Occupancy",
+                              isSelected: false,
+                              onTap: () {
+                                cubit.toggleDrawer();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const GymOccupancyPage(),
+                                  ),
+                                );
+                              },
+                            ),
                             _buildDrawerItem(
                               icon: Icons.local_bar_outlined,
                               title: "Gym & Bar",
                               isSelected: true,
-                              onTap: () => cubit.toggleDrawer(),
+                              onTap: () {
+                                cubit.toggleDrawer();
+                              },
                             ),
+                            if (isBarServiceActive)
+                              _buildDrawerItem(
+                                icon: Icons.local_offer_outlined,
+                                title: "Edit Prices & History",
+                                isSelected: false,
+                                onTap: () {
+                                  cubit.toggleDrawer();
+                                  _openEditPricesPage(context);
+                                },
+                              ),
                             _buildDrawerItem(
-                              icon: Icons.local_offer_outlined,
-                              title: "Price History",
+                              icon: Icons.credit_card_outlined,
+                              title: "Subscriptions & Policies",
                               isSelected: false,
                               onTap: () {
                                 cubit.toggleDrawer();
-                                Get.to(() => EditPricesPage());
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const PoliciesScreen(),
+                                  ),
+                                );
                               },
                             ),
-                            _buildDrawerItem(
-                                icon: Icons.credit_card_outlined,
-                                title: "Subscriptions & Policies",
-                                isSelected: false,
-                                onTap: () {}),
                           ],
                         ),
                       ),
@@ -378,7 +401,6 @@ class GymBarPage extends StatelessWidget {
     );
   }
 
-  /// 📦 تبويب المخزن (Stock)
   Widget _buildStockView() {
     return Obx(() {
       return ListView.separated(
@@ -458,8 +480,7 @@ class GymBarPage extends StatelessWidget {
     });
   }
 
-  /// 🏷️ تبويب الأسعار (Prices) مع زر Edit prices ثابت في أسفل الشاشة دائمًا
-  Widget _buildPricesViewWithFixedButton() {
+  Widget _buildPricesViewWithFixedButton(BuildContext context) {
     return Column(
       children: [
         Expanded(
@@ -522,7 +543,7 @@ class GymBarPage extends StatelessWidget {
                         children: [
                           Text(
                             product.updatedBy != null
-                                ? "Edited today by ${product.updatedBy}"
+                                ? "Edited by ${product.updatedBy}"
                                 : "Last edit 3 days ago",
                             style: const TextStyle(
                               fontSize: 12,
@@ -554,25 +575,27 @@ class GymBarPage extends StatelessWidget {
             );
           }),
         ),
-        // زر Edit prices الثابت أسفل القائمة تماماً
         Container(
           padding: const EdgeInsets.all(16),
-          child: ElevatedButton(
-            onPressed: () => Get.to(() => EditPricesPage()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4B5563),
-              minimumSize: const Size(double.infinity, 52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: () => _openEditPricesPage(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4B5563),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
               ),
-              elevation: 0,
-            ),
-            child: const Text(
-              "Edit prices",
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+              child: const Text(
+                "Edit prices & history",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -581,7 +604,6 @@ class GymBarPage extends StatelessWidget {
     );
   }
 
-  /// تبويب المكونات (Ingredients)
   Widget _buildIngredientsView() {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -6,7 +6,11 @@ part 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
 
-  Future<void> login(String memberId, String password) async {
+  Future<void> login(
+    String memberId,
+    String password, {
+    String role = "user",
+  }) async {
     emit(AuthLoadingState());
 
     if (memberId.trim().isEmpty || password.isEmpty) {
@@ -19,7 +23,7 @@ class AuthCubit extends Cubit<AuthState> {
     final isValid = memberId.trim() == "1234" && password == "1234";
 
     if (isValid) {
-      await AuthHiveHelper.saveSession(memberId.trim());
+      await AuthHiveHelper.saveSession(memberId.trim(), role: role);
       emit(AuthSuccessState());
     } else {
       emit(AuthErrorState("Wrong Member ID or password"));

@@ -11,17 +11,17 @@ class BarCubit extends Cubit<BarState> {
 
   Future<void> getBarSettings() async {
     emit(BarLoadingState());
-    await HiveHelper.getBarSettings();
+    await AdminbarHiveHelper.getBarSettings();
     emit(BarLoadedState());
   }
 
   Future<void> toggleBarService(bool value) async {
-    await HiveHelper.setBarService(value);
+    await AdminbarHiveHelper.setBarService(value);
     emit(BarServiceChangedState());
   }
 
   Future<void> changeTab(int tabIndex) async {
-    await HiveHelper.setSelectedTab(tabIndex);
+    await AdminbarHiveHelper.setSelectedTab(tabIndex);
     emit(BarTabChangedState());
   }
 

@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-class HiveHelper {
+class AdminbarHiveHelper {
   static const barBox = "Bar_Box";
   static const barServiceKey = "Bar_Service_Key";
   static const selectedTabKey = "Selected_Tab_Key";
@@ -8,6 +8,12 @@ class HiveHelper {
   // القيم الحالية في الذاكرة (الواجهة بتقرأ منها)
   static bool isBarServiceActive = true;
   static int selectedTab = 0; // 0: Stock, 1: Ingredients, 2: Prices
+
+  // تهيئة وفتح صندوق البار وجلب الإعدادات
+  static Future<void> init() async {
+    await Hive.openBox(barBox);
+    await getBarSettings();
+  }
 
   // جلب الإعدادات من Hive
   static Future<void> getBarSettings() async {

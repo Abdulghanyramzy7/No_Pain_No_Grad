@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:no_pain_no_grad/gym/core/const/appgradients.dart';
+import 'package:no_pain_no_grad/gym/core/const/customer_bottom_nav.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/core/model/user_model.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/coach/cubit/cubit/coach_cubit.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/coach/hive_helper/coach_hive_helper.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/coach/view/trainers_list_page.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_view/bar_page.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/home.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/profile.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/weights.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/coach/view/chat/chat_message_model.dart';
 
 class PrivateChatPage extends StatefulWidget {
@@ -55,21 +51,6 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         );
       }
     });
-  }
-
-  // التنقل بين صفحات شريط التنقل السفلي
-  void _onNavTap(int index) {
-    final Widget page = switch (index) {
-      0 => const CustomerHome(),
-      1 => const WeightsScreen(),
-      2 => const BarPage(),
-      3 => const TrainersListPage(),
-      _ => const ProfileScreen(),
-    };
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
   }
 
   @override
@@ -173,6 +154,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                 Expanded(
                   child: BlocBuilder<CoachCubit, CoachState>(
                     builder: (context, state) {
+                      final List<ChatMessageModel> chatMessages =
+                          List<ChatMessageModel>.from(CoachHiveHelper.messages);
+
                       return ListView(
                         controller: _scrollController,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -198,7 +182,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                                   backgroundColor:
                                       const Color(0xFFF4877B).withValues(alpha: 0.2),
                                   child: Text(
-                                    coach.name[0],
+                                    coach.name.isNotEmpty
+                                        ? coach.name[0].toUpperCase()
+                                        : '?',
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -262,7 +248,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                           const SizedBox(height: 20),
 
                           // رسايل الشات من Hive
-                          ...CoachHiveHelper.messages.map(
+                          ...chatMessages.map(
                             (m) => _buildChatBubble(message: m.text, isMe: m.isMe),
                           ),
                           const SizedBox(height: 20),
@@ -287,6 +273,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                   ),
                   child: TextField(
                     controller: _messageController,
+                    textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _send(),
                     decoration: InputDecoration(
                       hintText: "Type a message...",
@@ -312,35 +299,9 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
         ),
 
         // شريط التنقل السفلي
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: BottomNavigationBar(
-            currentIndex: 3, // صفحة الشات تابعة للـ Coach
-            backgroundColor: Colors.white,
-            elevation: 0,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: const Color(0xFFF4877B),
-            unselectedItemColor: const Color(0xFF8C98A4),
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-            unselectedLabelStyle: const TextStyle(fontSize: 11),
-            onTap: _onNavTap,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Train'),
-              BottomNavigationBarItem(icon: Icon(Icons.local_drink_rounded), label: 'Bar'),
-              BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Coach'),
-              BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Profile'),
-            ],
-          ),
+        bottomNavigationBar: CustomerBottomNavBar(
+          currentIndex: 3,
+          onCoachTapWhenOnChat: () => Navigator.pop(context),
         ),
       ),
     );

@@ -9,6 +9,7 @@ class CoachCubit extends Cubit<CoachState> {
   Future<void> getCoaches() async {
     emit(CoachLoadingState());
     await CoachHiveHelper.getCoaches();
+    if (isClosed) return;
     if (CoachHiveHelper.coaches.isEmpty) {
       emit(CoachEmptyState());
     } else {
@@ -18,12 +19,14 @@ class CoachCubit extends Cubit<CoachState> {
 
   Future<void> getMessages(String coachId) async {
     await CoachHiveHelper.getMessages(coachId);
+    if (isClosed) return;
     emit(CoachChatLoadedState());
   }
 
   Future<void> sendMessage(String coachId, String text) async {
     if (text.trim().isEmpty) return;
     await CoachHiveHelper.sendMessage(coachId, text.trim());
+    if (isClosed) return;
     emit(CoachMessageSentState());
   }
 }

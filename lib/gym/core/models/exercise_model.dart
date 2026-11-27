@@ -30,6 +30,19 @@ class ExerciseModel {
         return 0.0;
     }
   }
+  void setWeight(String category, double value) {
+  switch (category) {
+    case 'Barbell':
+      barbellWeight = value;
+      break;
+    case 'Machine':
+      machineWeight = value;
+      break;
+    case 'Dumbbell':
+      dumbbellWeight = value;
+      break;
+  }
+}
 
   // 🌟 نقلنا منطق تعديل الأوزان والدمبل والماشين هنا جوه الموديل نفسه!
   void updateWeight(String category, bool isAdd) {

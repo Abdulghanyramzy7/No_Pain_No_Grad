@@ -1,33 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:no_pain_no_grad/gym/core/const/appgradients.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/coach/view/trainers_list_page.dart';
+import 'package:no_pain_no_grad/gym/core/const/customer_bottom_nav.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_view/cart_page.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/cubit/cubit/bar_cubit.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/hive_helper/bar_hive_helper.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/home.dart';
 
-import 'package:no_pain_no_grad/gym/view/customer_view/profile.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/weights.dart';
-
-class BarPage extends StatelessWidget {
+class BarPage extends StatefulWidget {
   const BarPage({super.key});
 
+  @override
+  State<BarPage> createState() => _BarPageState();
+}
+
+class _BarPageState extends State<BarPage> {
   static const List<String> categories = ["Shakes", "Meals", "Supplements"];
 
-  // التنقل بين صفحات شريط التنقل السفلي
-  void _onNavTap(BuildContext context, int index) {
-    if (index == 2) return; // احنا واقفين على صفحة البار
-    final Widget page = switch (index) {
-      0 => const CustomerHome(),
-      1 => const WeightsScreen(),
-      3 => const TrainersListPage(),
-      _ => const ProfileScreen(),
-    };
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
+  @override
+  void initState() {
+    super.initState();
+    context.read<BarCubit>().getBar();
   }
 
   @override
@@ -43,9 +35,9 @@ class BarPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // الهيدر العلوي (العنوان وزر السلة العلوي)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -60,7 +52,6 @@ class BarPage extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        // زر السلة العلوي للانتقال لصفحة السلة
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -77,13 +68,16 @@ class BarPage extends StatelessWidget {
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(14),
-                              onTap: () {
-                                Navigator.push(
+                              onTap: () async {
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => const UserCartPage(),
                                   ),
                                 );
+                                if (context.mounted) {
+                                  cubit.getBar();
+                                }
                               },
                               child: const Padding(
                                 padding: EdgeInsets.all(10.0),
@@ -103,32 +97,34 @@ class BarPage extends StatelessWidget {
                             color: Colors.white.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(14),
                           ),
-                          child: const Icon(Icons.more_horiz, color: Color(0xFF1D2733)),
+                          child: const Icon(Icons.more_horiz,
+                              color: Color(0xFF1D2733)),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 10),
-
-              // أزرار الفئات (Categories)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: BlocBuilder<BarCubit, BarState>(
                   builder: (context, state) {
                     return Row(
                       children: categories.map((category) {
-                        final isSelected = BarHiveHelper.selectedCategory == category;
+                        final isSelected =
+                            BarHiveHelper.selectedCategory == category;
                         return Padding(
                           padding: const EdgeInsets.only(right: 10),
                           child: GestureDetector(
                             onTap: () => cubit.changeCategory(category),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
                               decoration: BoxDecoration(
-                                color: isSelected ? const Color(0xFF56C5B1) : Colors.white,
+                                color: isSelected
+                                    ? const Color(0xFF56C5B1)
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
@@ -143,7 +139,9 @@ class BarPage extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: isSelected ? Colors.white : const Color(0xFF6B7886),
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFF6B7886),
                                 ),
                               ),
                             ),
@@ -154,10 +152,7 @@ class BarPage extends StatelessWidget {
                   },
                 ),
               ),
-
               const SizedBox(height: 15),
-
-              // قائمة المنتجات المتغيرة حسب الفئة
               Expanded(
                 child: BlocBuilder<BarCubit, BarState>(
                   builder: (context, state) {
@@ -181,7 +176,7 @@ class BarPage extends StatelessWidget {
                       itemCount: products.length,
                       itemBuilder: (context, index) {
                         final product = products[index];
-                        bool isAvailable = product.isAvailable;
+                        final bool isAvailable = product.isReadyForSale;
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -211,7 +206,8 @@ class BarPage extends StatelessWidget {
                                   child: Image.network(
                                     product.productImage,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) => const Icon(
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(
                                       Icons.local_drink_rounded,
                                       color: Color(0xFFF4877B),
                                     ),
@@ -262,7 +258,6 @@ class BarPage extends StatelessWidget {
                                       height: 32,
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          // إضافة المنتج للسلة وإظهار إشعار
                                           cubit.addProduct(product);
                                           ScaffoldMessenger.of(context)
                                             ..hideCurrentSnackBar()
@@ -270,22 +265,28 @@ class BarPage extends StatelessWidget {
                                               SnackBar(
                                                 content: Text(
                                                   "${product.productTitle} added to cart",
-                                                  style: const TextStyle(color: Colors.white),
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
                                                 ),
-                                                duration: const Duration(milliseconds: 800),
-                                                backgroundColor: const Color(0xFF56C5B1),
-                                                behavior: SnackBarBehavior.floating,
+                                                duration: const Duration(
+                                                    milliseconds: 800),
+                                                backgroundColor:
+                                                    const Color(0xFF56C5B1),
+                                                behavior:
+                                                    SnackBarBehavior.floating,
                                                 margin: const EdgeInsets.all(15),
                                               ),
                                             );
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFFF4877B),
+                                          backgroundColor:
+                                              const Color(0xFFF4877B),
                                           foregroundColor: Colors.white,
                                           padding: EdgeInsets.zero,
                                           elevation: 0,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
                                         ),
                                         child: const Icon(Icons.add, size: 18),
@@ -293,8 +294,12 @@ class BarPage extends StatelessWidget {
                                     )
                                   else
                                     Text(
-                                      product.statusMessage ?? "Unavailable",
-                                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                      product.statusMessage ??
+                                          (product.stockQuantity <= 0
+                                              ? "Out of stock"
+                                              : "Unavailable"),
+                                      style: const TextStyle(
+                                          fontSize: 10, color: Colors.grey),
                                     ),
                                 ],
                               ),
@@ -306,11 +311,14 @@ class BarPage extends StatelessWidget {
                   },
                 ),
               ),
-
-              // كارت الحجز السفلي
               BlocBuilder<BarCubit, BarState>(
                 builder: (context, state) {
-                  if (BarHiveHelper.cartItems.isEmpty) return const SizedBox.shrink();
+                  if (BarHiveHelper.cartItems.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  final int totalCount = BarHiveHelper.cartItems
+                      .fold<int>(0, (sum, item) => sum + item.quantity);
+
                   return Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Container(
@@ -321,24 +329,29 @@ class BarPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFF4877B).withValues(alpha: 0.3),
+                            color:
+                                const Color(0xFFF4877B).withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       child: InkWell(
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          await Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const UserCartPage()),
+                            MaterialPageRoute(
+                                builder: (_) => const UserCartPage()),
                           );
+                          if (context.mounted) {
+                            cubit.getBar();
+                          }
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "${BarHiveHelper.cartItems.length} item",
+                              "$totalCount ${totalCount == 1 ? 'item' : 'items'}",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
@@ -364,38 +377,7 @@ class BarPage extends StatelessWidget {
           ),
         ),
       ),
-
-      // شريط التنقل السفلي
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: 2,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFFF4877B),
-          unselectedItemColor: const Color(0xFF8C98A4),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-          unselectedLabelStyle: const TextStyle(fontSize: 11),
-          onTap: (index) => _onNavTap(context, index),
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Train'),
-            BottomNavigationBarItem(icon: Icon(Icons.local_drink_rounded), label: 'Bar'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Coach'),
-            BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Profile'),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomerBottomNavBar(currentIndex: 2),
     );
   }
 }

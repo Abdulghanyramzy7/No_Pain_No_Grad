@@ -1,31 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:no_pain_no_grad/gym/core/const/appgradients.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/coach/view/trainers_list_page.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_view/bar_page.dart';
+import 'package:no_pain_no_grad/gym/core/const/customer_bottom_nav.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/cubit/cubit/bar_cubit.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/hive_helper/bar_hive_helper.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/home.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/profile.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/weights.dart';
 
 class UserCartPage extends StatelessWidget {
   const UserCartPage({super.key});
-
-  // التنقل بين صفحات شريط التنقل السفلي
-  void _onNavTap(BuildContext context, int index) {
-    final Widget page = switch (index) {
-      0 => const CustomerHome(),
-      1 => const WeightsScreen(),
-      2 => const BarPage(),
-      3 => const TrainersListPage(),
-      _ => const ProfileScreen(),
-    };
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +26,9 @@ class UserCartPage extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // الهيدر العلوي
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -61,7 +42,8 @@ class UserCartPage extends StatelessWidget {
                         ),
                         if (isOrderPlaced)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: const Color(0xFFE2F6F0),
                               borderRadius: BorderRadius.circular(20),
@@ -77,22 +59,21 @@ class UserCartPage extends StatelessWidget {
                           )
                         else
                           IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.red),
+                            icon: const Icon(Icons.delete_outline,
+                                color: Colors.red),
                             onPressed: () => cubit.clearCart(),
                           ),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // المحتوى الأساسي للسلة
                   Expanded(
                     child: (items.isEmpty && !isOrderPlaced)
                         ? const Center(
                             child: Text(
                               "Your Cart is Empty",
-                              style: TextStyle(fontSize: 16, color: Color(0xFF6B7886)),
+                              style: TextStyle(
+                                  fontSize: 16, color: Color(0xFF6B7886)),
                             ),
                           )
                         : SingleChildScrollView(
@@ -103,15 +84,16 @@ class UserCartPage extends StatelessWidget {
                                   _buildOrderTrackingCard(),
                                   const SizedBox(height: 15),
                                 ],
-
-                                // قائمة المنتجات داخل السلة
                                 ListView.builder(
                                   itemCount: items.length,
                                   shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
+                                  physics:
+                                      const NeverScrollableScrollPhysics(),
                                   itemBuilder: (context, index) {
                                     final cartItem = items[index];
-                                    bool isAvailable = cartItem.product.isAvailable;
+                                    final product = cartItem.effectiveProduct;
+                                    final bool isAvailable =
+                                        product.isReadyForSale;
 
                                     return Container(
                                       margin: const EdgeInsets.only(bottom: 12),
@@ -121,7 +103,8 @@ class UserCartPage extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(20),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.02),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.02),
                                             blurRadius: 10,
                                             offset: const Offset(0, 4),
                                           ),
@@ -134,14 +117,17 @@ class UserCartPage extends StatelessWidget {
                                             height: 60,
                                             decoration: BoxDecoration(
                                               color: const Color(0xFFF4F6F6),
-                                              borderRadius: BorderRadius.circular(16),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                             ),
                                             child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(16),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                               child: Image.network(
-                                                cartItem.product.productImage,
+                                                product.productImage,
                                                 fit: BoxFit.cover,
-                                                errorBuilder: (context, error, stackTrace) =>
+                                                errorBuilder: (context, error,
+                                                        stackTrace) =>
                                                     const Icon(
                                                   Icons.local_drink_rounded,
                                                   color: Color(0xFFF4877B),
@@ -152,10 +138,11 @@ class UserCartPage extends StatelessWidget {
                                           const SizedBox(width: 15),
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  cartItem.product.productTitle,
+                                                  product.productTitle,
                                                   style: const TextStyle(
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.bold,
@@ -165,8 +152,8 @@ class UserCartPage extends StatelessWidget {
                                                 const SizedBox(height: 4),
                                                 Text(
                                                   isOrderPlaced
-                                                      ? "${cartItem.product.subtitle.split('·')[0]}· Qty ${cartItem.quantity}"
-                                                      : cartItem.product.subtitle,
+                                                      ? "${product.subtitle.split('·')[0]}· Qty ${cartItem.quantity}"
+                                                      : product.subtitle,
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     color: isAvailable
@@ -190,25 +177,25 @@ class UserCartPage extends StatelessWidget {
                                     );
                                   },
                                 ),
-
                                 const SizedBox(height: 10),
-
-                                // كارت طريقة الدفع
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 16),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.02),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.02),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
                                   child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         "Payment",
@@ -228,19 +215,18 @@ class UserCartPage extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-
                                 const SizedBox(height: 25),
-
-                                // زر تأكيد / إلغاء الطلب
                                 SizedBox(
                                   width: double.infinity,
                                   height: 55,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          isOrderPlaced ? Colors.white : const Color(0xFFF4877B),
-                                      foregroundColor:
-                                          isOrderPlaced ? const Color(0xFFF4877B) : Colors.white,
+                                      backgroundColor: isOrderPlaced
+                                          ? Colors.white
+                                          : const Color(0xFFF4877B),
+                                      foregroundColor: isOrderPlaced
+                                          ? const Color(0xFFF4877B)
+                                          : Colors.white,
                                       elevation: 0,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(20),
@@ -281,38 +267,7 @@ class UserCartPage extends StatelessWidget {
           ),
         ),
       ),
-
-      // شريط التنقل السفلي
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: 2, // صفحة السلة تابعة للـ Bar
-          backgroundColor: Colors.white,
-          elevation: 0,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFFF4877B),
-          unselectedItemColor: const Color(0xFF8C98A4),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-          unselectedLabelStyle: const TextStyle(fontSize: 11),
-          onTap: (index) => _onNavTap(context, index),
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Train'),
-            BottomNavigationBarItem(icon: Icon(Icons.local_drink_rounded), label: 'Bar'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Coach'),
-            BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Profile'),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const CustomerBottomNavBar(currentIndex: 2),
     );
   }
 
@@ -332,10 +287,27 @@ class UserCartPage extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildStepRow(title: "Placed", subtitle: "05:25 PM", isDone: true, isCurrent: false),
-          _buildStepRow(title: "Preparing", subtitle: "Ready in about 3 min", isDone: false, isCurrent: true),
-          _buildStepRow(title: "Ready for pickup", subtitle: "", isDone: false, isCurrent: false),
-          _buildStepRow(title: "Picked up", subtitle: "", isDone: false, isCurrent: false, isLast: true),
+          _buildStepRow(
+              title: "Placed",
+              subtitle: "05:25 PM",
+              isDone: true,
+              isCurrent: false),
+          _buildStepRow(
+              title: "Preparing",
+              subtitle: "Ready in about 3 min",
+              isDone: false,
+              isCurrent: true),
+          _buildStepRow(
+              title: "Ready for pickup",
+              subtitle: "",
+              isDone: false,
+              isCurrent: false),
+          _buildStepRow(
+              title: "Picked up",
+              subtitle: "",
+              isDone: false,
+              isCurrent: false,
+              isLast: true),
         ],
       ),
     );
@@ -358,7 +330,9 @@ class UserCartPage extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isDone || isCurrent ? const Color(0xFFF4877B) : const Color(0xFFD2D6DC),
+                  color: isDone || isCurrent
+                      ? const Color(0xFFF4877B)
+                      : const Color(0xFFD2D6DC),
                   width: 2,
                 ),
                 color: isDone ? const Color(0xFFF4877B) : Colors.transparent,
@@ -387,7 +361,9 @@ class UserCartPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: isCurrent ? const Color(0xFFF4877B) : const Color(0xFF1D2733),
+                    color: isCurrent
+                        ? const Color(0xFFF4877B)
+                        : const Color(0xFF1D2733),
                   ),
                 ),
                 if (subtitle.isNotEmpty) ...[
@@ -396,7 +372,9 @@ class UserCartPage extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: isCurrent ? const Color(0xFFF4877B) : const Color(0xFF8C98A4),
+                      color: isCurrent
+                          ? const Color(0xFFF4877B)
+                          : const Color(0xFF8C98A4),
                     ),
                   ),
                 ],
@@ -409,7 +387,8 @@ class UserCartPage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 13),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Container(width: 2, height: 24, color: const Color(0xFFE5E7EB)),
+              child: Container(
+                  width: 2, height: 24, color: const Color(0xFFE5E7EB)),
             ),
           ),
       ],

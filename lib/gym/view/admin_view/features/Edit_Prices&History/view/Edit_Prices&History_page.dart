@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:no_pain_no_grad/gym/core/const/appgradients.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/hive_helper/hive_helper.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/cubit/cubit/edit_history_cubit.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/view/gym&bar_page.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/features/overview/view/overview_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/hive_helper/hive_helper.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/view/usermanagement_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/view/gym&bar_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/overview/view/overview_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies_view.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/model/items_model.dart';
 
-/// الصفحة بتعمل الكيوبت بنفسها، عشان Get.to(() => EditPricesPage()) تشتغل من أي مكان
 class EditPricesPage extends StatelessWidget {
   const EditPricesPage({super.key});
 
@@ -36,10 +37,10 @@ class _EditPricesView extends StatelessWidget {
         builder: (context, state) {
           final bool isDrawerOpen = cubit.isDrawerOpen;
           final String selectedFilter = HiveHelper.selectedRoleFilter;
+          final bool isBarOn = HiveHelper.isBarServiceActive;
 
           return Stack(
             children: [
-              // المحتوى الأساسي للصفحة
               Container(
                 decoration: const BoxDecoration(
                   gradient: AppGradients.plateBackground,
@@ -47,9 +48,9 @@ class _EditPricesView extends StatelessWidget {
                 child: SafeArea(
                   child: Column(
                     children: [
-                      // الهيدر العلوي (زر القائمة + العنوان بجانبه)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         child: Row(
                           children: [
                             GestureDetector(
@@ -67,7 +68,8 @@ class _EditPricesView extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                child: const Icon(Icons.menu, color: Color(0xFF1D2733), size: 20),
+                                child: const Icon(Icons.menu,
+                                    color: Color(0xFF1D2733), size: 20),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -81,33 +83,62 @@ class _EditPricesView extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const Icon(Icons.more_horiz, color: Color(0xFF1D2733)),
+                            const Icon(Icons.more_horiz,
+                                color: Color(0xFF1D2733)),
                           ],
                         ),
                       ),
-
-                      // شريط الفلاتر الأفقية (Everyone, Admin, Bar worker)
+                      if (!isBarOn)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 6),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFEAE6),
+                              borderRadius: BorderRadius.circular(16),
+                              border:
+                                  Border.all(color: const Color(0xFFFFD4CE)),
+                            ),
+                            child: const Text(
+                              "Bar service is currently turned off. Turn it on from Gym & Bar to edit prices.",
+                              style: TextStyle(
+                                color: Color(0xFFD9483B),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 6),
                         child: SizedBox(
                           height: 40,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: _filters.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 8),
                             itemBuilder: (context, index) {
                               final filter = _filters[index];
                               final bool isSelected = selectedFilter == filter;
                               return GestureDetector(
                                 onTap: () => cubit.changeFilter(filter),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    color: isSelected ? const Color(0xFF56C5B1) : Colors.white,
+                                    color: isSelected
+                                        ? const Color(0xFF56C5B1)
+                                        : Colors.white,
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: isSelected ? Colors.transparent : const Color(0xFFCFDCD9),
+                                      color: isSelected
+                                          ? Colors.transparent
+                                          : const Color(0xFFCFDCD9),
                                     ),
                                   ),
                                   child: Text(
@@ -115,7 +146,9 @@ class _EditPricesView extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
-                                      color: isSelected ? Colors.white : const Color(0xFF1D2733),
+                                      color: isSelected
+                                          ? Colors.white
+                                          : const Color(0xFF1D2733),
                                     ),
                                   ),
                                 ),
@@ -124,10 +157,7 @@ class _EditPricesView extends StatelessWidget {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
-                      // قائمة المنتجات المفلترة (Obx لأن المنتجات لسه على GetX)
                       Expanded(
                         child: Obx(() {
                           final products = cubit.filteredProducts;
@@ -135,17 +165,21 @@ class _EditPricesView extends StatelessWidget {
                             return const Center(
                               child: Text(
                                 "No price history found for this filter.",
-                                style: TextStyle(color: Color(0xFF6B7886), fontSize: 14),
+                                style: TextStyle(
+                                    color: Color(0xFF6B7886), fontSize: 14),
                               ),
                             );
                           }
                           return ListView.separated(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 4),
                             itemCount: products.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
                             itemBuilder: (context, index) {
                               final product = products[index];
-                              return _buildProductPriceCard(context, cubit, product);
+                              return _buildProductPriceCard(
+                                  context, cubit, product, isBarOn);
                             },
                           );
                         }),
@@ -154,16 +188,12 @@ class _EditPricesView extends StatelessWidget {
                   ),
                 ),
               ),
-
-              // 🎯 القائمة الجانبية (Drawer Menu)
               if (isDrawerOpen)
                 Stack(
                   children: [
                     GestureDetector(
                       onTap: () => cubit.toggleDrawer(),
-                      child: Container(
-                        color: Colors.black.withOpacity(0.35),
-                      ),
+                      child: Container(color: Colors.black.withOpacity(0.35)),
                     ),
                     Align(
                       alignment: Alignment.centerLeft,
@@ -177,10 +207,19 @@ class _EditPricesView extends StatelessWidget {
                           children: [
                             RichText(
                               text: const TextSpan(
-                                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, fontFamily: 'Inter'),
+                                style: TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: 'Inter'),
                                 children: [
-                                  TextSpan(text: "PLATE ", style: TextStyle(color: Color(0xFF1D2733))),
-                                  TextSpan(text: "Admin", style: TextStyle(color: Color(0xFFF4877B))),
+                                  TextSpan(
+                                      text: "PLATE ",
+                                      style:
+                                          TextStyle(color: Color(0xFF1D2733))),
+                                  TextSpan(
+                                      text: "Admin",
+                                      style:
+                                          TextStyle(color: Color(0xFFF4877B))),
                                 ],
                               ),
                             ),
@@ -190,7 +229,8 @@ class _EditPricesView extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: const Color(0xFFE3ECEA)),
+                                border:
+                                    Border.all(color: const Color(0xFFE3ECEA)),
                               ),
                               child: Row(
                                 children: [
@@ -204,15 +244,24 @@ class _EditPricesView extends StatelessWidget {
                                     alignment: Alignment.center,
                                     child: const Text(
                                       "DK",
-                                      style: TextStyle(color: Color(0xFFF4877B), fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          color: Color(0xFFF4877B),
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                   const SizedBox(width: 10),
                                   const Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text("Dr. Khaled", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                      Text("Zamalek Club · Admin", style: TextStyle(fontSize: 11, color: Color(0xFF6B7886))),
+                                      Text("Dr. Khaled",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14)),
+                                      Text("Zamalek Club · Admin",
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              color: Color(0xFF6B7886))),
                                     ],
                                   ),
                                 ],
@@ -225,7 +274,11 @@ class _EditPricesView extends StatelessWidget {
                               isSelected: false,
                               onTap: () {
                                 cubit.toggleDrawer();
-                                Get.to(() => AdminOverviewPage());
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const AdminOverviewPage()),
+                                );
                               },
                             ),
                             _buildDrawerItem(
@@ -234,26 +287,60 @@ class _EditPricesView extends StatelessWidget {
                               isSelected: false,
                               onTap: () {
                                 cubit.toggleDrawer();
-                                Get.to(() => UsersManagementPage());
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          const UsersManagementPage()),
+                                );
                               },
                             ),
-                            _buildDrawerItem(icon: Icons.person_outline, title: "Gym Occupancy", isSelected: false, onTap: () {}),
+                            _buildDrawerItem(
+                              icon: Icons.person_outline,
+                              title: "Gym Occupancy",
+                              isSelected: false,
+                              onTap: () {
+                                cubit.toggleDrawer();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const GymOccupancyPage()),
+                                );
+                              },
+                            ),
                             _buildDrawerItem(
                               icon: Icons.local_bar_outlined,
                               title: "Gym & Bar",
                               isSelected: false,
                               onTap: () {
                                 cubit.toggleDrawer();
-                                Get.to(() => GymBarPage());
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => GymBarPage()),
+                                );
                               },
                             ),
+                            if (isBarOn)
+                              _buildDrawerItem(
+                                icon: Icons.local_offer_outlined,
+                                title: "Edit Prices & History",
+                                isSelected: true,
+                                onTap: () => cubit.toggleDrawer(),
+                              ),
                             _buildDrawerItem(
-                              icon: Icons.local_offer_outlined,
-                              title: "Price History",
-                              isSelected: true,
-                              onTap: () => cubit.toggleDrawer(),
+                              icon: Icons.credit_card_outlined,
+                              title: "Subscriptions & Policies",
+                              isSelected: false,
+                              onTap: () {
+                                cubit.toggleDrawer();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const PoliciesScreen()),
+                                );
+                              },
                             ),
-                            _buildDrawerItem(icon: Icons.credit_card_outlined, title: "Subscriptions & Policies", isSelected: false, onTap: () {}),
                           ],
                         ),
                       ),
@@ -267,9 +354,16 @@ class _EditPricesView extends StatelessWidget {
     );
   }
 
-  /// تصميم الكارت التفاعلي مع تفعيل زر الـ Edit لفتح نافذة التعديل
-  Widget _buildProductPriceCard(BuildContext context, EditPricesCubit cubit, ProductModel product) {
+  Widget _buildProductPriceCard(
+    BuildContext context,
+    EditPricesCubit cubit,
+    ProductModel product,
+    bool isBarOn,
+  ) {
     final bool expanded = cubit.isExpanded(product.id);
+    final String prevPriceText = product.oldPrice != null
+        ? "was ${product.oldPrice!.toInt()} EGP"
+        : "initial price";
 
     return GestureDetector(
       onTap: () => cubit.toggleCardExpansion(product.id),
@@ -297,17 +391,21 @@ class _EditPricesView extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      Text(
-                        product.productTitle,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1D2733),
+                      Flexible(
+                        child: Text(
+                          product.productTitle,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1D2733),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: const Color(0xFFEEF3F3),
                           borderRadius: BorderRadius.circular(10),
@@ -324,11 +422,13 @@ class _EditPricesView extends StatelessWidget {
                     ],
                   ),
                 ),
-                // 🎯 زر الـ Edit يفتح نافذة التعديل (Bottom Sheet)
                 ElevatedButton(
-                  onPressed: () => _showEditPriceBottomSheet(context, cubit, product),
+                  onPressed: isBarOn
+                      ? () => _showEditPriceBottomSheet(context, cubit, product)
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4B5563),
+                    disabledBackgroundColor: const Color(0xFFEEF3F3),
                     minimumSize: const Size(64, 34),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -336,24 +436,23 @@ class _EditPricesView extends StatelessWidget {
                     elevation: 0,
                     padding: EdgeInsets.zero,
                   ),
-                  child: const Text(
+                  child: Text(
                     "Edit",
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: isBarOn ? Colors.white : const Color(0xFF8C98A4),
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 6),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Current: ${product.price} EGP",
+                  "Current: ${product.price.toInt()} EGP",
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -361,25 +460,26 @@ class _EditPricesView extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  expanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                   color: const Color(0xFF6B7886),
                   size: 20,
                 ),
               ],
             ),
-
-            // التفاصيل تظهر فقط عند الضغط على الكارت
             if (expanded) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 10),
                 child: Divider(color: Color(0xFFE3ECEA), height: 1),
               ),
               const SizedBox(height: 4),
-              _detailRow("User", product.updatedBy ?? "Ahmed Fawzy · Bar worker"),
+              _detailRow(
+                  "Last edited by", product.updatedBy ?? "Dr. Khaled · Admin"),
               const SizedBox(height: 6),
-              _detailRow("Timestamp", "Today 14:20"),
+              _detailRow("Previous price", prevPriceText),
               const SizedBox(height: 6),
-              _detailRow("Price Change", "was ${product.oldPrice ?? 60} EGP"),
+              _detailRow("Storage", product.storageLocation ?? "Main Storage"),
             ],
           ],
         ),
@@ -387,11 +487,13 @@ class _EditPricesView extends StatelessWidget {
     );
   }
 
-  /// 🎯 نافذة Bottom Sheet لتعديل السعر
-  /// بنمرر الـ cubit من برّه لأن الـ Bottom Sheet بتتفتح فوق الصفحة ومش جواها في الشجرة
-  void _showEditPriceBottomSheet(BuildContext context, EditPricesCubit cubit, ProductModel product) {
-    // السعر المؤقت جوه النافذة بس (حالة محلية مؤقتة)
-    var tempPrice = product.price;
+  void _showEditPriceBottomSheet(
+    BuildContext context,
+    EditPricesCubit cubit,
+    ProductModel product,
+  ) {
+    final double baseOldPrice = product.price;
+    double tempPrice = product.price;
 
     showModalBottomSheet(
       context: context,
@@ -402,7 +504,7 @@ class _EditPricesView extends StatelessWidget {
       ),
       builder: (sheetContext) {
         return StatefulBuilder(
-          builder: (context, setSheetState) {
+          builder: (innerContext, setSheetState) {
             return Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
               child: Column(
@@ -429,10 +531,9 @@ class _EditPricesView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // حقل تعديل السعر مع أزرار الزيادة والنقصان
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF9FAFB),
                       borderRadius: BorderRadius.circular(16),
@@ -447,7 +548,8 @@ class _EditPricesView extends StatelessWidget {
                               setSheetState(() => tempPrice -= 5);
                             }
                           },
-                          icon: const Icon(Icons.remove, color: Color(0xFF6B7886)),
+                          icon: const Icon(Icons.remove,
+                              color: Color(0xFF6B7886)),
                           style: IconButton.styleFrom(
                             backgroundColor: Colors.white,
                             side: const BorderSide(color: Color(0xFFE3ECEA)),
@@ -465,7 +567,8 @@ class _EditPricesView extends StatelessWidget {
                           onPressed: () {
                             setSheetState(() => tempPrice += 5);
                           },
-                          icon: const Icon(Icons.add, color: Color(0xFF6B7886)),
+                          icon:
+                              const Icon(Icons.add, color: Color(0xFF6B7886)),
                           style: IconButton.styleFrom(
                             backgroundColor: Colors.white,
                             side: const BorderSide(color: Color(0xFFE3ECEA)),
@@ -475,8 +578,6 @@ class _EditPricesView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // كارت التنبيه بالتغيير
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
@@ -488,7 +589,7 @@ class _EditPricesView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "${product.price.toInt()} EGP ➔ ${tempPrice.toInt()} EGP",
+                          "${baseOldPrice.toInt()} EGP ➔ ${tempPrice.toInt()} EGP",
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -507,46 +608,60 @@ class _EditPricesView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // أزرار الحفظ والإلغاء
-                  ElevatedButton(
-                    onPressed: () {
-                      cubit.itemsController.updateProductPrice(product.id, tempPrice, "Dr. Khaled");
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF4877B),
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await cubit.saveProductPrice(
+                          product: product,
+                          newPrice: tempPrice,
+                          editorName: "Dr. Khaled · Admin",
+                        );
+                        if (Navigator.canPop(sheetContext)) {
+                          Navigator.pop(sheetContext);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF4877B),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      "Save price",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      child: const Text(
+                        "Save price",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      side: const BorderSide(color: Color(0xFFCFDCD9)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        if (Navigator.canPop(sheetContext)) {
+                          Navigator.pop(sheetContext);
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFCFDCD9)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      "Cancel",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1D2733),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1D2733),
+                        ),
                       ),
                     ),
                   ),

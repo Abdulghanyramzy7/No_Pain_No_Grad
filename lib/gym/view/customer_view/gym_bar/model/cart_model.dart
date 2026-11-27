@@ -1,9 +1,8 @@
-
+import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/hive_helper/bar_hive_helper.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/model/items_model.dart';
 
-
 class CartItemModel {
-  final ProductModel product;
+  ProductModel product;
   int quantity;
 
   CartItemModel({
@@ -11,5 +10,7 @@ class CartItemModel {
     this.quantity = 1,
   });
 
-  double get total => product.price * quantity;
+  ProductModel get effectiveProduct => BarHiveHelper.resolveLatestProduct(product);
+
+  double get total => effectiveProduct.price * quantity;
 }

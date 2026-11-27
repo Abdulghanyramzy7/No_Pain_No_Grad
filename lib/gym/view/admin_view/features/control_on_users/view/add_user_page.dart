@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:no_pain_no_grad/gym/core/const/appgradients.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/core/model/user_model.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/view/Edit_Prices&History_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/cubit/cubit/users_cubit.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/cubit/cubit/users_state.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/view/usermanagement_page.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/view/gym&bar_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/overview/view/overview_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies_view.dart';
 
 class AddUserPage extends StatefulWidget {
   const AddUserPage({super.key});
@@ -18,13 +22,40 @@ class _AddUserPageState extends State<AddUserPage> {
   final TextEditingController addNameController = TextEditingController();
   final TextEditingController addPhoneController = TextEditingController();
   final TextEditingController addEmailController = TextEditingController();
-  final TextEditingController addPasswordController = TextEditingController();
-  final TextEditingController addStartDateController = TextEditingController();
-  final TextEditingController addEndDateController = TextEditingController();
+  final TextEditingController addPasswordController =
+      TextEditingController(text: "PLATE-4821");
+  final TextEditingController addStartDateController =
+      TextEditingController(text: "16 Oct 2026");
+  final TextEditingController addEndDateController =
+      TextEditingController(text: "16 Oct 2027");
 
-  UserRole selectedRole = UserRole.client;
+  UserRole selectedRole = UserRole.coach;
+  String selectedPlan = "Quarterly";
+  String selectedCoach = "Hany Salah";
+  Map<String, bool> adminPermissions = {
+    'admins': false,
+    'users': true,
+    'subs': true,
+    'bar': false,
+    'prices': false,
+    'occ': true,
+  };
+
   bool isDrawerOpen = false;
   bool isAccountCreated = false;
+
+  final List<String> plansList = [
+    "Monthly",
+    "Quarterly",
+    "Half-yearly",
+    "Yearly",
+  ];
+
+  final List<String> coachesList = [
+    "Hany Salah",
+    "Mona Tarek",
+    "Omar Ezzat",
+  ];
 
   void toggleDrawer() {
     setState(() {
@@ -57,6 +88,9 @@ class _AddUserPageState extends State<AddUserPage> {
       return;
     }
 
+    final isStaff =
+        selectedRole == UserRole.coach || selectedRole == UserRole.barWorker;
+
     final newUser = UserModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: name,
@@ -67,8 +101,16 @@ class _AddUserPageState extends State<AddUserPage> {
       joinedDate: addStartDateController.text.trim().isNotEmpty
           ? addStartDateController.text.trim()
           : "26 Nov 2026",
-      contractStartDate: DateTime.tryParse(addStartDateController.text.trim()),
-      contractEndDate: DateTime.tryParse(addEndDateController.text.trim()),
+      subscriptionPlan:
+          selectedRole == UserRole.client ? selectedPlan : null,
+      coachName: selectedRole == UserRole.client ? selectedCoach : null,
+      contractStartDate:
+          isStaff ? DateTime.tryParse(addStartDateController.text.trim()) : null,
+      contractEndDate:
+          isStaff ? DateTime.tryParse(addEndDateController.text.trim()) : null,
+      permissions: selectedRole == UserRole.admin
+          ? Map<String, bool>.from(adminPermissions)
+          : null,
     );
 
     context.read<UserCubit>().addUser(newUser);
@@ -76,6 +118,9 @@ class _AddUserPageState extends State<AddUserPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isStaff =
+        selectedRole == UserRole.coach || selectedRole == UserRole.barWorker;
+
     return BlocConsumer<UserCubit, UserState>(
       listener: (context, state) {
         if (state is UserAddedState) {
@@ -85,9 +130,6 @@ class _AddUserPageState extends State<AddUserPage> {
           addNameController.clear();
           addPhoneController.clear();
           addEmailController.clear();
-          addPasswordController.clear();
-          addStartDateController.clear();
-          addEndDateController.clear();
         } else if (state is UserErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -100,7 +142,6 @@ class _AddUserPageState extends State<AddUserPage> {
         return Scaffold(
           body: Stack(
             children: [
-              // 1. المحتوى الأساسي للصفحة
               Container(
                 decoration: const BoxDecoration(
                   gradient: AppGradients.plateBackground,
@@ -108,7 +149,6 @@ class _AddUserPageState extends State<AddUserPage> {
                 child: SafeArea(
                   child: Column(
                     children: [
-                      // الهيدر العلوي
                       Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -150,79 +190,33 @@ class _AddUserPageState extends State<AddUserPage> {
                           ],
                         ),
                       ),
-
-                      // المحتوى القابل للتمرير (الحقول)
                       Expanded(
                         child: ListView(
                           padding: const EdgeInsets.all(16),
                           children: [
-                            _buildFieldLabel("Full Name"),
+                            _buildRoleSegmentedBar(),
+                            const SizedBox(height: 16),
+                            _buildFieldLabel("Full name"),
                             const SizedBox(height: 6),
                             _buildTextField(
                               controller: addNameController,
-                              hint: "Ahmed Ali",
+                              hint: "e.g. Mohamed Adel",
                             ),
-                            const SizedBox(height: 16),
-
-                            _buildFieldLabel("Role"),
-                            const SizedBox(height: 6),
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 14),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                border:
-                                    Border.all(color: const Color(0xFFCFDCD9)),
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<UserRole>(
-                                  value: selectedRole,
-                                  isExpanded: true,
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: UserRole.client,
-                                      child: Text("Client"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: UserRole.coach,
-                                      child: Text("Coach"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: UserRole.barWorker,
-                                      child: Text("Bar worker"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: UserRole.admin,
-                                      child: Text("Admin"),
-                                    ),
-                                  ],
-                                  onChanged: (val) {
-                                    if (val != null) {
-                                      setState(() => selectedRole = val);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-
+                            const SizedBox(height: 14),
                             _buildFieldLabel("Phone"),
                             const SizedBox(height: 6),
                             _buildTextField(
                               controller: addPhoneController,
                               hint: "01x xxxx xxxx",
                             ),
-                            const SizedBox(height: 16),
-
+                            const SizedBox(height: 14),
                             _buildFieldLabel("Email (login)"),
                             const SizedBox(height: 6),
                             _buildTextField(
                               controller: addEmailController,
                               hint: "name@email.com",
                             ),
-                            const SizedBox(height: 16),
-
+                            const SizedBox(height: 14),
                             _buildFieldLabel("Temporary password"),
                             const SizedBox(height: 6),
                             _buildTextField(
@@ -230,63 +224,180 @@ class _AddUserPageState extends State<AddUserPage> {
                               hint: "PLATE-4821",
                             ),
                             const SizedBox(height: 16),
-
-                            // كارت الـ Contract
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                                border:
-                                    Border.all(color: const Color(0xFFE3ECEA)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.02),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Contract",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1D2733),
+                            if (isStaff)
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border:
+                                      Border.all(color: const Color(0xFFE3ECEA)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.02),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  _buildFieldLabel("Start date"),
-                                  const SizedBox(height: 6),
-                                  _buildTextField(
-                                    controller: addStartDateController,
-                                    hint: "16 Oct 2026",
-                                  ),
-                                  const SizedBox(height: 12),
-                                  _buildFieldLabel("End date"),
-                                  const SizedBox(height: 6),
-                                  _buildTextField(
-                                    controller: addEndDateController,
-                                    hint: "16 Oct 2027",
-                                  ),
-                                  const SizedBox(height: 10),
-                                  const Text(
-                                    "Ending before this date later needs your approval and the person's approval.",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF8C98A4),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Contract",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1D2733),
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 12),
+                                    _buildFieldLabel("Start date"),
+                                    const SizedBox(height: 6),
+                                    _buildTextField(
+                                      controller: addStartDateController,
+                                      hint: "16 Oct 2026",
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildFieldLabel("End date"),
+                                    const SizedBox(height: 6),
+                                    _buildTextField(
+                                      controller: addEndDateController,
+                                      hint: "16 Oct 2027",
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      "Ending before this date later needs your approval and the person's approval.",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFF8C98A4),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-
+                            if (selectedRole == UserRole.client)
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border:
+                                      Border.all(color: const Color(0xFFE3ECEA)),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Subscription",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1D2733),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: plansList.map((plan) {
+                                        final isSelected = selectedPlan == plan;
+                                        return ChoiceChip(
+                                          label: Text(plan),
+                                          selected: isSelected,
+                                          selectedColor: const Color(0xFF56C5B1),
+                                          labelStyle: TextStyle(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : const Color(0xFF1D2733),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          onSelected: (_) {
+                                            setState(() => selectedPlan = plan);
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                    const SizedBox(height: 14),
+                                    const Text(
+                                      "Coach",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1D2733),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: coachesList.map((coach) {
+                                        final isSelected =
+                                            selectedCoach == coach;
+                                        return ChoiceChip(
+                                          label: Text(coach),
+                                          selected: isSelected,
+                                          selectedColor: const Color(0xFF56C5B1),
+                                          labelStyle: TextStyle(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : const Color(0xFF1D2733),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          onSelected: (_) {
+                                            setState(
+                                                () => selectedCoach = coach);
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            if (selectedRole == UserRole.admin)
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border:
+                                      Border.all(color: const Color(0xFFE3ECEA)),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Admin permissions",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1D2733),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...adminPermissions.entries.map((entry) {
+                                      return SwitchListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Text(
+                                          entry.key,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        value: entry.value,
+                                        activeColor: const Color(0xFFF4877B),
+                                        onChanged: (val) {
+                                          setState(() {
+                                            adminPermissions[entry.key] = val;
+                                          });
+                                        },
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              ),
                             const SizedBox(height: 16),
-
-                            // رسالة النجاح الخضراء تظهر بعد الإضافة في Hive
                             if (isAccountCreated)
                               Container(
                                 padding: const EdgeInsets.all(16),
@@ -306,8 +417,6 @@ class _AddUserPageState extends State<AddUserPage> {
                           ],
                         ),
                       ),
-
-                      // الأزرار السفلية (Cancel و Create account)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                         child: Row(
@@ -376,8 +485,6 @@ class _AddUserPageState extends State<AddUserPage> {
                   ),
                 ),
               ),
-
-              // القائمة الجانبية (Drawer Menu)
               if (isDrawerOpen)
                 Stack(
                   children: [
@@ -421,7 +528,7 @@ class _AddUserPageState extends State<AddUserPage> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(14),
                                 border:
-                                    Border.all(color: const Color(0xFFE3ECEa)),
+                                    Border.all(color: const Color(0xFFE3ECEA)),
                               ),
                               child: Row(
                                 children: [
@@ -429,7 +536,7 @@ class _AddUserPageState extends State<AddUserPage> {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFDE0dc),
+                                      color: const Color(0xFFFDE0DC),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     alignment: Alignment.center,
@@ -475,7 +582,7 @@ class _AddUserPageState extends State<AddUserPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => AdminOverviewPage(),
+                                    builder: (_) => const AdminOverviewPage(),
                                   ),
                                 );
                               },
@@ -486,14 +593,27 @@ class _AddUserPageState extends State<AddUserPage> {
                               isSelected: true,
                               onTap: () {
                                 toggleDrawer();
-                                Navigator.pop(context);
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const UsersManagementPage(),
+                                  ),
+                                );
                               },
                             ),
                             _buildDrawerItem(
                               icon: Icons.person_outline,
                               title: "Gym Occupancy",
                               isSelected: false,
-                              onTap: () {},
+                              onTap: () {
+                                toggleDrawer();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const GymOccupancyPage(),
+                                  ),
+                                );
+                              },
                             ),
                             _buildDrawerItem(
                               icon: Icons.local_bar_outlined,
@@ -513,13 +633,29 @@ class _AddUserPageState extends State<AddUserPage> {
                               icon: Icons.local_offer_outlined,
                               title: "Price History",
                               isSelected: false,
-                              onTap: () {},
+                              onTap: () {
+                                toggleDrawer();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const EditPricesPage(),
+                                  ),
+                                );
+                              },
                             ),
                             _buildDrawerItem(
                               icon: Icons.credit_card_outlined,
                               title: "Subscriptions & Policies",
                               isSelected: false,
-                              onTap: () {},
+                              onTap: () {
+                                toggleDrawer();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const PoliciesScreen(),
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -531,6 +667,55 @@ class _AddUserPageState extends State<AddUserPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildRoleSegmentedBar() {
+    final items = [
+      (UserRole.coach, "Coach"),
+      (UserRole.barWorker, "Bar worker"),
+      (UserRole.client, "Client"),
+      (UserRole.admin, "Admin"),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE3ECEA)),
+      ),
+      child: Row(
+        children: items.map((item) {
+          final isSelected = selectedRole == item.$1;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedRole = item.$1;
+                  isAccountCreated = false;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF56C5B1) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Text(
+                  item.$2,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: isSelected ? Colors.white : const Color(0xFF6B7886),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 

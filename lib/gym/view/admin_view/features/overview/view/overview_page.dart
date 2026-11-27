@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:no_pain_no_grad/gym/auth/auth_hive_helper.dart';
 import 'package:no_pain_no_grad/gym/core/const/appgradients.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/core/model/user_model.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/view/Edit_Prices&History_page.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/view/gym&bar_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/cubit/cubit/users_cubit.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/cubit/cubit/users_state.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/hive_helper/user_hive_helper.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/view/usermanagement_page.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/users/users_cubit/users_cubit.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/users/users_hive_helper.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_cubit/bar_cubit.dart';
-import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_hive_helper.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/cubit/cubit/bar_cubit.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/hive_helper/hive_helper.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/view/gym&bar_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies_view.dart';
 
 class AdminOverviewPage extends StatefulWidget {
   const AdminOverviewPage({super.key});
@@ -18,21 +21,59 @@ class AdminOverviewPage extends StatefulWidget {
 }
 
 class _AdminOverviewPageState extends State<AdminOverviewPage> {
-  // حالة فتح/غلق القائمة الجانبية (حالة واجهة بس، فمش محتاجة Cubit)
   bool _isDrawerOpen = false;
 
   void _toggleDrawer() => setState(() => _isDrawerOpen = !_isDrawerOpen);
 
-  // TODO: مفيش موديل للإشغال لسه، الأرقام دي ثابتة لحد ما نعمل صفحة Gym Occupancy
+  // TODO: مفيش موديل للإشغال لسه، الأرقام دي ثابتة لحد ما نربط صفحة Gym Occupancy
   static const int _peopleInside = 42;
   static const int _maxCapacity = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<UserCubit>().getUsers();
+      context.read<BarCubit>().getBarSettings();
+    });
+  }
+
+  List<UserModel> _getExpiringClients(List<UserModel> sourceUsers) {
+    final now = DateTime.now();
+    return sourceUsers.where((user) {
+      if (user.role != UserRole.client ||
+          user.status == AccountStatus.terminated) {
+        return false;
+      }
+      if (user.status == AccountStatus.expiring) {
+        return true;
+      }
+      if (user.renewalDate != null) {
+        final diffDays = user.renewalDate!.difference(now).inDays;
+        return diffDays >= 0 && diffDays <= 7;
+      }
+      return false;
+    }).toList();
+  }
+
+  String _daysLeftLabel(UserModel user) {
+    if (user.renewalDate != null) {
+      final diffDays = user.renewalDate!.difference(DateTime.now()).inDays;
+      final safeDays = diffDays < 0 ? 0 : diffDays;
+      return "$safeDays ${safeDays == 1 ? 'day' : 'days'} left";
+    }
+    if (user.daysElapsed != null) {
+      return "Day ${user.daysElapsed}";
+    }
+    return "Expiring";
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // خلفية الصفحة الأساسية
           Container(
             decoration: const BoxDecoration(
               gradient: AppGradients.plateBackground,
@@ -40,13 +81,12 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
             child: SafeArea(
               child: Column(
                 children: [
-                  // الهيدر العلوي
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // زر القائمة (Hamburger Menu)
                         GestureDetector(
                           onTap: _toggleDrawer,
                           child: Container(
@@ -62,7 +102,8 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                                 ),
                               ],
                             ),
-                            child: const Icon(Icons.menu, color: Color(0xFF1D2733), size: 22),
+                            child: const Icon(Icons.menu,
+                                color: Color(0xFF1D2733), size: 22),
                           ),
                         ),
                         const Text(
@@ -73,9 +114,9 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                             color: Color(0xFF1D2733),
                           ),
                         ),
-                        // بادج الأدمن
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 6),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE2F6F0),
                             borderRadius: BorderRadius.circular(20),
@@ -92,26 +133,27 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                       ],
                     ),
                   ),
-
-                  // محتوى الصفحة: بيتحدث لوحده مع أي تغيير في المستخدمين أو البار
                   Expanded(
-                    child: BlocBuilder<UsersCubit, UsersState>(
+                    child: BlocBuilder<UserCubit, UserState>(
                       builder: (context, usersState) {
                         return BlocBuilder<BarCubit, BarState>(
                           builder: (context, barState) {
-                            final expiring = UsersHiveHelper.expiringClients;
-                            final activeOrders = BarHiveHelper.activeOrdersCount;
+                            final allUsers = UserHiveHelper.myUsers;
+                            final expiring = _getExpiringClients(allUsers);
+                            final isBarActive =
+                                AdminbarHiveHelper.isBarServiceActive;
 
                             return ListView(
                               padding: const EdgeInsets.all(16),
                               children: [
-                                // 1. كارت GYM RIGHT NOW
                                 _buildCard(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           const Text(
                                             "GYM RIGHT NOW",
@@ -129,7 +171,8 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                                             ),
                                             decoration: BoxDecoration(
                                               color: const Color(0xFFE2F6F0),
-                                              borderRadius: BorderRadius.circular(10),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                             ),
                                             child: const Text(
                                               "Light",
@@ -144,7 +187,8 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                                       ),
                                       const SizedBox(height: 10),
                                       const Row(
-                                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.baseline,
                                         textBaseline: TextBaseline.alphabetic,
                                         children: [
                                           Text(
@@ -171,7 +215,8 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                                         child: const LinearProgressIndicator(
                                           value: _peopleInside / _maxCapacity,
                                           backgroundColor: Color(0xFFF4F6F6),
-                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
                                             Color(0xFF56C5B1),
                                           ),
                                           minHeight: 8,
@@ -181,7 +226,8 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                                       const Row(
                                         children: [
                                           Icon(Icons.arrow_drop_up,
-                                              color: Color(0xFF2E7D59), size: 20),
+                                              color: Color(0xFF2E7D59),
+                                              size: 20),
                                           Text(
                                             "Increasing. Updated 1 minute ago.",
                                             style: TextStyle(
@@ -194,17 +240,16 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                                     ],
                                   ),
                                 ),
-
                                 const SizedBox(height: 15),
-
-                                // 2. الكارتين الصغيرين (الأرقام من الموديلز)
                                 Row(
                                   children: [
                                     Expanded(
                                       child: _buildSmallMetricCard(
                                         title: "Active bar orders",
-                                        count: "$activeOrders",
-                                        subtitle: "Being prepared",
+                                        count: isBarActive ? "0" : "—",
+                                        subtitle: isBarActive
+                                            ? "Being prepared"
+                                            : "Bar is off",
                                       ),
                                     ),
                                     const SizedBox(width: 15),
@@ -217,13 +262,11 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                                     ),
                                   ],
                                 ),
-
                                 const SizedBox(height: 20),
-
-                                // 3. الاشتراكات التي تنتهي قريباً (من UserModel)
                                 _buildCard(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         "Subscriptions expiring soon",
@@ -243,60 +286,50 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                                           ),
                                         )
                                       else
-                                        for (int i = 0; i < expiring.length; i++) ...[
+                                        for (int i = 0;
+                                            i < expiring.length;
+                                            i++) ...[
                                           if (i > 0)
-                                            const Divider(height: 24, color: Color(0xFFF0F2F5)),
+                                            const Divider(
+                                                height: 24,
+                                                color: Color(0xFFF0F2F5)),
                                           _buildSubscriptionItem(
                                             name: expiring[i].name,
-                                            plan: expiring[i].subscriptionPlan ?? "Member",
-                                            daysLeft: UsersHiveHelper.daysLeftLabel(expiring[i]),
+                                            plan: expiring[i].subscriptionPlan ??
+                                                "Member",
+                                            daysLeft: _daysLeftLabel(expiring[i]),
                                           ),
                                         ],
                                     ],
                                   ),
                                 ),
-
-                                const SizedBox(height: 20),
-
-                                // 4. طلبات البار النشطة (من CartItemModel / ProductModel)
-                                _buildCard(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Active bar orders",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF1D2733),
+                                if (isBarActive) ...[
+                                  const SizedBox(height: 20),
+                                  _buildCard(
+                                    child: const Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Active bar orders",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF1D2733),
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 15),
-                                      if (activeOrders == 0)
-                                        const Text(
+                                        SizedBox(height: 15),
+                                        Text(
                                           "No active orders right now",
                                           style: TextStyle(
                                             fontSize: 13,
                                             color: Color(0xFF6B7886),
                                           ),
-                                        )
-                                      else
-                                        for (int i = 0;
-                                            i < BarHiveHelper.cartItems.length;
-                                            i++) ...[
-                                          if (i > 0)
-                                            const Divider(height: 24, color: Color(0xFFF0F2F5)),
-                                          _buildOrderItem(
-                                            title:
-                                                "${BarHiveHelper.cartItems[i].product.productTitle} × ${BarHiveHelper.cartItems[i].quantity}",
-                                            orderedBy: AuthHiveHelper.memberId.isEmpty
-                                                ? "Member"
-                                                : "Member ${AuthHiveHelper.memberId}",
-                                          ),
-                                        ],
-                                    ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
+                                ],
                                 const SizedBox(height: 20),
                               ],
                             );
@@ -309,15 +342,11 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
               ),
             ),
           ),
-
-          // القائمة الجانبية (Drawer Menu المخصصة)
           if (_isDrawerOpen) ...[
-            // خلفية معتمة عند فتح القائمة
             GestureDetector(
               onTap: _toggleDrawer,
               child: Container(color: Colors.black.withValues(alpha: 0.35)),
             ),
-            // محتوى القائمة الجانبية
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
@@ -328,7 +357,6 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // الشعار
                     RichText(
                       text: const TextSpan(
                         style: TextStyle(
@@ -337,13 +365,16 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                           fontFamily: 'Inter',
                         ),
                         children: [
-                          TextSpan(text: "PLATE ", style: TextStyle(color: Color(0xFF1D2733))),
-                          TextSpan(text: "Admin", style: TextStyle(color: Color(0xFFF4877B))),
+                          TextSpan(
+                              text: "PLATE ",
+                              style: TextStyle(color: Color(0xFF1D2733))),
+                          TextSpan(
+                              text: "Admin",
+                              style: TextStyle(color: Color(0xFFF4877B))),
                         ],
                       ),
                     ),
                     const SizedBox(height: 15),
-                    // كارت البروفايل المصغر
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
@@ -375,11 +406,13 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                             children: [
                               Text(
                                 "Dr. Khaled",
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 14),
                               ),
                               Text(
                                 "Zamalek Club · Admin",
-                                style: TextStyle(fontSize: 11, color: Color(0xFF6B7886)),
+                                style: TextStyle(
+                                    fontSize: 11, color: Color(0xFF6B7886)),
                               ),
                             ],
                           ),
@@ -387,7 +420,6 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // عناصر التنقل في القائمة
                     _buildDrawerItem(
                       icon: Icons.dashboard_outlined,
                       title: "Overview",
@@ -399,10 +431,11 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                       title: "User Management",
                       isSelected: false,
                       onTap: () {
-                        _toggleDrawer(); // لإغلاق القائمة الجانبية أولاً
+                        _toggleDrawer();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => UsersManagementPage()),
+                          MaterialPageRoute(
+                              builder: (_) => const UsersManagementPage()),
                         );
                       },
                     ),
@@ -412,7 +445,11 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                       isSelected: false,
                       onTap: () {
                         _toggleDrawer();
-                        // TODO: الانتقال لصفحة الإشغال لما نعملها
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const GymOccupancyPage()),
+                        );
                       },
                     ),
                     _buildDrawerItem(
@@ -435,7 +472,8 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                         _toggleDrawer();
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => EditPricesPage()),
+                          MaterialPageRoute(
+                              builder: (_) => const EditPricesPage()),
                         );
                       },
                     ),
@@ -443,7 +481,14 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                       icon: Icons.credit_card_outlined,
                       title: "Subscriptions & Policies",
                       isSelected: false,
-                      onTap: () {},
+                      onTap: () {
+                        _toggleDrawer();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const PoliciesScreen()),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -455,7 +500,6 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
     );
   }
 
-  // كارت أبيض موحد للأقسام
   Widget _buildCard({required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -567,47 +611,6 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
     );
   }
 
-  Widget _buildOrderItem({required String title, required String orderedBy}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1D2733),
-              ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              "Ordered by $orderedBy",
-              style: const TextStyle(fontSize: 12, color: Color(0xFF6B7886)),
-            ),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE2F6F0),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Text(
-            "Preparing",
-            style: TextStyle(
-              color: Color(0xFF2E7D59),
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildDrawerItem({
     required IconData icon,
     required String title,
@@ -629,7 +632,9 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
           children: [
             Icon(
               icon,
-              color: isSelected ? const Color(0xFF2E7D59) : const Color(0xFF1D2733),
+              color: isSelected
+                  ? const Color(0xFF2E7D59)
+                  : const Color(0xFF1D2733),
               size: 22,
             ),
             const SizedBox(width: 12),
@@ -638,7 +643,9 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? const Color(0xFF2E7D59) : const Color(0xFF1D2733),
+                color: isSelected
+                    ? const Color(0xFF2E7D59)
+                    : const Color(0xFF1D2733),
               ),
             ),
           ],

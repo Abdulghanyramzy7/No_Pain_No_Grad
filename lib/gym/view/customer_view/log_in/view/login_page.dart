@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:no_pain_no_grad/gym/core/const/appgradients.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/overview/view/overview_page.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/home.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/log_in/cubit/cubit/auth_cubit.dart';
 
@@ -14,6 +15,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String _selectedRole = "user"; // "user" أو "admin"
 
   @override
   void dispose() {
@@ -27,9 +29,13 @@ class _LoginPageState extends State<LoginPage> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccessState) {
+          final targetPage = _selectedRole == "admin"
+              ? const AdminOverviewPage()
+              : const CustomerHome();
+
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const CustomerHome()),
+            MaterialPageRoute(builder: (_) => targetPage),
           );
         } else if (state is AuthErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -105,6 +111,39 @@ class _LoginPageState extends State<LoginPage> {
                       isPassword: true,
                       controller: _passwordController,
                     ),
+                    const SizedBox(height: 14),
+
+                    // اختيار نوع الحساب (User / Admin)
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: const Color(0xFFE3ECEA),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _buildRoleOption(
+                              label: "User",
+                              value: "user",
+                              icon: Icons.person_outline,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: _buildRoleOption(
+                              label: "Admin",
+                              value: "admin",
+                              icon: Icons.admin_panel_settings_outlined,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 16),
 
                     BlocBuilder<AuthCubit, AuthState>(
@@ -119,6 +158,7 @@ class _LoginPageState extends State<LoginPage> {
                                 : () => context.read<AuthCubit>().login(
                                       _idController.text,
                                       _passwordController.text,
+                                      role: _selectedRole,
                                     ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF4877B),
@@ -198,6 +238,44 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleOption({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    final isSelected = _selectedRole == value;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedRole = value),
+      child: Container(
+        height: 40,
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFF4877B) : Colors.transparent,
+          borderRadius: BorderRadius.circular(11),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? Colors.white : const Color(0xFF6B7886),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Inter',
+                color: isSelected ? Colors.white : const Color(0xFF1D2733),
+              ),
+            ),
+          ],
         ),
       ),
     );
