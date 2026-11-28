@@ -6,9 +6,9 @@ import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History
 import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/hive_helper/hive_helper.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/view/usermanagement_page.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/view/gym&bar_page.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy_view.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/overview/view/overview_page.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies_view.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies/policies_view.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/model/items_model.dart';
 
 class EditPricesPage extends StatelessWidget {

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/policies/remove_client_view.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/view/Edit_Prices&History_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/view/usermanagement_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy_view.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/overview/view/overview_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/remove_client_view.dart';
 import '../clinet_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cubit/client_detail_cubit.dart';
@@ -101,7 +105,7 @@ Widget _buildDrawerOverlay() {
                 isSelected: false,
                 onTap: () {
                   _toggleDrawer();
-                  // Navigator.push(context, MaterialPageRoute(builder: (_) => AdminOverviewPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => AdminOverviewPage()));
                 },
               ),
               _buildDrawerItem(
@@ -110,26 +114,31 @@ Widget _buildDrawerOverlay() {
                 isSelected: false,
                 onTap: () {
                   _toggleDrawer();
-                  // Navigator.push(context, MaterialPageRoute(builder: (_) => UsersManagementPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => UsersManagementPage()));
                 },
               ),
               _buildDrawerItem(icon: Icons.person_outline, title: "Gym Occupancy", isSelected: false, onTap: () {}),
-              _buildDrawerItem(
-                icon: Icons.local_bar_outlined,
-                title: "Gym & Bar",
-                isSelected: false,
-                onTap: () {
-                  _toggleDrawer();
-                  // Navigator.push(context, MaterialPageRoute(builder: (_) => GymBarPage()));
-                },
-              ),
+             _buildDrawerItem(
+  icon: Icons.person_outline,
+  title: "Gym Occupancy",
+  isSelected: false,
+  onTap: () {
+    _toggleDrawer();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const GymOccupancyPage(),
+      ),
+    );
+  },
+),
               _buildDrawerItem(
                 icon: Icons.local_offer_outlined,
                 title: "Price History",
                 isSelected: false,
                 onTap: () {
                   _toggleDrawer();
-                  // Navigator.push(context, MaterialPageRoute(builder: (_) => EditPricesPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => EditPricesPage()));
                 },
               ),
               _buildDrawerItem(

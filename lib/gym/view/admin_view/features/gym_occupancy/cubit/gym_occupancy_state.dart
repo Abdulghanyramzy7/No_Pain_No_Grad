@@ -1,4 +1,4 @@
-import 'package:no_pain_no_grad/gym/view/admin_view/gym_occupancy/models/crowd_level_model.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/models/crowd_level_model.dart';
 
 class GymOccupancyState {
   final int currentPeople;

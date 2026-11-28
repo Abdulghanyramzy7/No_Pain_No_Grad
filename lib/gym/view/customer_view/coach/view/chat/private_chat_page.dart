@@ -87,7 +87,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
+                                  color: Colors.black.withOpacity(0.04),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -128,7 +128,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
+                                  color: Colors.black.withOpacity(0.04),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -140,7 +140,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.5),
+                              color: Colors.white.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: const Icon(Icons.more_horiz, color: Color(0xFF1D2733)),
@@ -169,7 +169,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.02),
+                                  color: Colors.black.withOpacity(0.02),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -180,7 +180,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                                 CircleAvatar(
                                   radius: 25,
                                   backgroundColor:
-                                      const Color(0xFFF4877B).withValues(alpha: 0.2),
+                                      const Color(0xFFF4877B).withOpacity(0.2),
                                   child: Text(
                                     coach.name.isNotEmpty
                                         ? coach.name[0].toUpperCase()
@@ -228,7 +228,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.02),
+                                  color: Colors.black.withOpacity(0.02),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -265,7 +265,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: Colors.black.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -2),
                       ),
@@ -320,7 +320,7 @@ class _PrivateChatPageState extends State<PrivateChatPage> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: Colors.black.withOpacity(0.02),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),

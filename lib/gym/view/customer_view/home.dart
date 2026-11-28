@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:no_pain_no_grad/gym/core/widgets/check_in_slider.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/check_in_out/check_in_out.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/coach/view/trainers_list_page.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_view/bar_page.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_view/cart_page.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/profile.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/weights/weights.dart';
 
@@ -132,7 +135,9 @@ class _CustomerHomeState extends State<CustomerHome> {
                 ),
               ),
 
-              SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
@@ -229,13 +234,12 @@ class _CustomerHomeState extends State<CustomerHome> {
 
                       // زر السحب أو كارت الحضور
                       SimpleSlideToCheckIn(
-                        onCheckInTriggered: () async{
-                         await Navigator.push(
+                        onCheckInTriggered: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const CheckInOutScreen()),
                           );
-                         
                         },
                       ),
                       const SizedBox(height: 20),
@@ -244,7 +248,8 @@ class _CustomerHomeState extends State<CustomerHome> {
                       Row(
                         children: [
                           Expanded(
-                            child: Container(height: 150,
+                            child: Container(
+                              height: 150,
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -252,7 +257,10 @@ class _CustomerHomeState extends State<CustomerHome> {
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [SizedBox(height: 30,),
+                                children: [
+                                  SizedBox(
+                                    height: 30,
+                                  ),
                                   const Text(
                                     "Inside now",
                                     style: TextStyle(
@@ -263,7 +271,7 @@ class _CustomerHomeState extends State<CustomerHome> {
                                   const SizedBox(height: 5),
                                   Text(
                                     "$percentageInt people", // يتغير هو الآخر تلقائياً مع النسبة
-                                    style:  TextStyle(
+                                    style: TextStyle(
                                       color: getProgressColor(crowdPercentage),
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
@@ -275,16 +283,19 @@ class _CustomerHomeState extends State<CustomerHome> {
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: Container(height: 150,
+                            child: Container(
+                              height: 150,
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Column(
-                              
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [  SizedBox(height: 30,),
+                                children: [
+                                  SizedBox(
+                                    height: 30,
+                                  ),
                                   Text(
                                     "Next workout",
                                     style: TextStyle(
@@ -309,43 +320,54 @@ class _CustomerHomeState extends State<CustomerHome> {
                       ),
                       const SizedBox(height: 40),
 
-                       Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: const Text(
-                          'Weights log',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF102A33),
-                          ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                        onTap: () {Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const WeightsScreen()),
-                          );},
-                      ),
-                      const Divider(height: 1, indent: 16, endIndent: 16),
-                      ListTile(
-                        title: const Text(
-                          'My orders',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF102A33),
-                          ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: const Text(
+                                'Weights log',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF102A33),
+                                ),
+                              ),
+                              trailing: const Icon(Icons.chevron_right,
+                                  color: Colors.grey),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const WeightsScreen()),
+                                );
+                              },
+                            ),
+                            const Divider(height: 1, indent: 16, endIndent: 16),
+                            ListTile(
+                              title: const Text(
+                                'My orders',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF102A33),
+                                ),
+                              ),
+                              trailing: const Icon(Icons.chevron_right,
+                                  color: Colors.grey),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const UserCartPage()),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                        onTap: () {},
                       ),
-                    ],
-                  ),
-                ),
                     ],
                   ),
                 ),
@@ -354,7 +376,7 @@ class _CustomerHomeState extends State<CustomerHome> {
           ),
         ),
       ),
-     
+
       // شريط التنقل السفلي مع ربطه بصفحة البار وباقي الصفحات
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -374,10 +396,10 @@ class _CustomerHomeState extends State<CustomerHome> {
           type: BottomNavigationBarType.fixed,
           selectedItemColor: const Color(0xFFF4877B),
           unselectedItemColor: const Color(0xFF8C98A4),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+          selectedLabelStyle:
+              const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
           unselectedLabelStyle: const TextStyle(fontSize: 11),
           onTap: (index) {
-           
             // التنقل بناءً على الزرار المختار
             if (index == 0) {
               Get.off(() => const CustomerHome());
@@ -386,10 +408,10 @@ class _CustomerHomeState extends State<CustomerHome> {
               Get.off(() => const WeightsScreen());
             }
             if (index == 2) {
-            //  Get.off(() => const BarPage());
+              Get.off(() => const BarPage());
             }
             if (index == 3) {
-             // Get.off(() => const TrainersListPage());
+              Get.off(() => const TrainersListPage());
             }
             if (index == 4) {
               Get.off(() => const ProfileScreen());

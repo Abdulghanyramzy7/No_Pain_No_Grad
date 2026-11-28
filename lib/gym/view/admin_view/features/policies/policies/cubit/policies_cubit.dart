@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/policies/clinet_model.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/clinet_model.dart';
 import 'policies_state.dart';
 
 class PoliciesCubit extends Cubit<PoliciesState> {

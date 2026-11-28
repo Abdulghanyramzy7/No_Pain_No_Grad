@@ -1,4 +1,4 @@
-import 'package:no_pain_no_grad/gym/view/admin_view/policies/clinet_model.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/clinet_model.dart';
 
 
 

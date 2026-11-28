@@ -114,7 +114,7 @@ class _TrainersListPageState extends State<TrainersListPage> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.03),
+                                    color: Colors.black.withOpacity(0.03),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -125,7 +125,7 @@ class _TrainersListPageState extends State<TrainersListPage> {
                                   CircleAvatar(
                                     radius: 30,
                                     backgroundColor: const Color(0xFFF4877B)
-                                        .withValues(alpha: 0.2),
+                                        .withOpacity(0.2),
                                     child: Text(
                                       coach.name.isNotEmpty
                                           ? coach.name[0].toUpperCase()

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/Edit_Prices&History/view/Edit_Prices&History_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/view/usermanagement_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/view/gym&bar_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/overview/view/overview_page.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies/policies_view.dart';
 import 'cubit/gym_occupancy_cubit.dart';
 import 'cubit/gym_occupancy_state.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/gym_occupancy/models/crowd_cycle_model.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/gym_occupancy/models/crowd_level_model.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/models/crowd_cycle_model.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/models/crowd_level_model.dart';
 
 //  اتحولت لـ StatefulWidget عشان نقدر نتحكم في فتح وقفل القائمة بـ setState
 class GymOccupancyPage extends StatelessWidget {
@@ -97,7 +102,7 @@ class _GymOccupancyViewState extends State<_GymOccupancyView> {
                   isSelected: false,
                   onTap: () {
                     _toggleDrawer();
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) => AdminOverviewPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => AdminOverviewPage()));
                   },
                 ),
                 _buildDrawerItem(
@@ -106,7 +111,7 @@ class _GymOccupancyViewState extends State<_GymOccupancyView> {
                   isSelected: false,
                   onTap: () {
                     _toggleDrawer();
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) => UsersManagementPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => UsersManagementPage()));
                   },
                 ),
                 // الصفحة الحالية (Gym Occupancy) هي المحددة
@@ -122,7 +127,7 @@ class _GymOccupancyViewState extends State<_GymOccupancyView> {
                   isSelected: false,
                   onTap: () {
                     _toggleDrawer();
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) => GymBarPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => GymBarPage()));
                   },
                 ),
                 _buildDrawerItem(
@@ -131,7 +136,7 @@ class _GymOccupancyViewState extends State<_GymOccupancyView> {
                   isSelected: false,
                   onTap: () {
                     _toggleDrawer();
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) => EditPricesPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => EditPricesPage()));
                   },
                 ),
                 _buildDrawerItem(
@@ -140,7 +145,7 @@ class _GymOccupancyViewState extends State<_GymOccupancyView> {
                   isSelected: false,
                   onTap: () {
                     _toggleDrawer();
-                    // Navigator.push(context, MaterialPageRoute(builder: (_) => PoliciesScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => PoliciesScreen()));
                   },
                 ),
               ],

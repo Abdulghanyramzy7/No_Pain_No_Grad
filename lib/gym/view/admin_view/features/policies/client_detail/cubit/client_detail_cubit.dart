@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/policies/client_detail/cubit/client_detail_state.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/client_detail/cubit/client_detail_state.dart';
 import 'client_detail_state.dart';
 
 class ClientDetailCubit extends Cubit<ClientDetailState> {

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/coach/view/trainers_list_page.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_view/bar_page.dart';
+import 'package:no_pain_no_grad/gym/view/customer_view/gym_bar/bar_view/cart_page.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/home.dart';
 import 'package:no_pain_no_grad/gym/view/customer_view/weights/weights.dart';
 
@@ -11,7 +14,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  int daysleft=28;
+  int daysleft = 28;
   late int _currentIndex;
   @override
   Widget build(BuildContext context) {
@@ -19,8 +22,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _currentIndex = index;
     return Scaffold(
       body: Container(
-       height: double.infinity,
-       width: double.infinity,
+        height: double.infinity,
+        width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -34,11 +37,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-               
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -67,7 +70,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 40),
 
-             
                 const Row(
                   children: [
                     CircleAvatar(
@@ -108,7 +110,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 40),
 
-          
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16.0),
@@ -123,11 +124,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                   
                       Align(
                         alignment: Alignment.centerRight,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 6),
                           decoration: BoxDecoration(
                             color: const Color(0xFFD3F2EC),
                             borderRadius: BorderRadius.circular(15),
@@ -170,11 +171,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                     
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: LinearProgressIndicator(
-                          value: daysleft / 100, 
+                          value: daysleft / 100,
                           minHeight: 8,
                           backgroundColor: Colors.grey.shade200,
                           valueColor: const AlwaysStoppedAnimation<Color>(
@@ -184,7 +184,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 15),
 
-               
                       const Text(
                         'Renews Dec 30, 2026',
                         style: TextStyle(
@@ -225,7 +224,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _buildMeasurementCard('Height', '178 cm'), // استبدال الـ Bench PR بالـ Height
+                      child: _buildMeasurementCard('Height',
+                          '178 cm'), // استبدال الـ Bench PR بالـ Height
                     ),
                   ],
                 ),
@@ -247,12 +247,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Color(0xFF102A33),
                           ),
                         ),
-                        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                        onTap: () {Navigator.push(
+                        trailing:
+                            const Icon(Icons.chevron_right, color: Colors.grey),
+                        onTap: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const WeightsScreen()),
-                          );},
+                          );
+                        },
                       ),
                       const Divider(height: 1, indent: 16, endIndent: 16),
                       ListTile(
@@ -263,8 +266,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Color(0xFF102A33),
                           ),
                         ),
-                        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                        onTap: () {},
+                        trailing:
+                            const Icon(Icons.chevron_right, color: Colors.grey),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const UserCartPage()),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -275,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
-      
+
       // شريط التنقل السفلي مع ربطه بصفحة البار وباقي الصفحات
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -295,11 +305,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           type: BottomNavigationBarType.fixed,
           selectedItemColor: const Color(0xFFF4877B),
           unselectedItemColor: const Color(0xFF8C98A4),
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+          selectedLabelStyle:
+              const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
           unselectedLabelStyle: const TextStyle(fontSize: 11),
           onTap: (index) {
-            
-
             // التنقل بناءً على الزرار المختار
             if (index == 0) {
               Get.off(() => const CustomerHome());
@@ -308,10 +317,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Get.off(() => const WeightsScreen());
             }
             if (index == 2) {
-           //   Get.off(() => const BarPage());
+              Get.off(() => const BarPage());
             }
             if (index == 3) {
-             // Get.off(() => const TrainersListPage());
+              Get.off(() => const TrainersListPage());
             }
             if (index == 4) {
               Get.off(() => const ProfileScreen());

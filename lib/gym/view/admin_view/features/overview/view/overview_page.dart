@@ -10,8 +10,8 @@ import 'package:no_pain_no_grad/gym/view/admin_view/features/control_on_users/vi
 import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/cubit/cubit/bar_cubit.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/hive_helper/hive_helper.dart';
 import 'package:no_pain_no_grad/gym/view/admin_view/features/gym&bar/view/gym&bar_page.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies_view.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/gym_occupancy/gym_occupancy_view.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/policies/policies_view.dart';
 
 class AdminOverviewPage extends StatefulWidget {
   const AdminOverviewPage({super.key});
@@ -96,7 +96,7 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
+                                  color: Colors.black.withOpacity(0.04),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -345,7 +345,7 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
           if (_isDrawerOpen) ...[
             GestureDetector(
               onTap: _toggleDrawer,
-              child: Container(color: Colors.black.withValues(alpha: 0.35)),
+              child: Container(color: Colors.black.withOpacity(0.35)),
             ),
             Align(
               alignment: Alignment.centerLeft,
@@ -508,7 +508,7 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -530,7 +530,7 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withOpacity(0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -625,7 +625,7 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
         padding: const EdgeInsets.symmetric(horizontal: 14),
         margin: const EdgeInsets.only(bottom: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFE2F6F0) : Colors.transparent,
+          color: isSelected ? const Color(0xFF56C5B1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -633,7 +633,7 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
             Icon(
               icon,
               color: isSelected
-                  ? const Color(0xFF2E7D59)
+                  ? Colors.white
                   : const Color(0xFF1D2733),
               size: 22,
             ),
@@ -644,7 +644,7 @@ class _AdminOverviewPageState extends State<AdminOverviewPage> {
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: isSelected
-                    ? const Color(0xFF2E7D59)
+                    ? Colors.white
                     : const Color(0xFF1D2733),
               ),
             ),

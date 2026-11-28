@@ -17,7 +17,7 @@ import 'package:no_pain_no_grad/gym/view/customer_view/log_in/cubit/cubit/auth_c
 import 'package:no_pain_no_grad/gym/view/customer_view/log_in/view/login_page.dart'
     show LoginPage;
 import 'package:no_pain_no_grad/gym/core/models/occupancy/occupancy_store.dart';
-import 'package:no_pain_no_grad/gym/view/admin_view/policies/clinet_model.dart';
+import 'package:no_pain_no_grad/gym/view/admin_view/features/policies/clinet_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

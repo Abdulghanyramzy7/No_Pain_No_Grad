@@ -58,7 +58,7 @@ class _BarPageState extends State<BarPage> {
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
+                                color: Colors.black.withOpacity(0.04),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -94,7 +94,7 @@ class _BarPageState extends State<BarPage> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: Colors.white.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: const Icon(Icons.more_horiz,
@@ -128,7 +128,7 @@ class _BarPageState extends State<BarPage> {
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.03),
+                                    color: Colors.black.withOpacity(0.03),
                                     blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   ),
@@ -186,7 +186,7 @@ class _BarPageState extends State<BarPage> {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.02),
+                                color: Colors.black.withOpacity(0.02),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -330,7 +330,7 @@ class _BarPageState extends State<BarPage> {
                         boxShadow: [
                           BoxShadow(
                             color:
-                                const Color(0xFFF4877B).withValues(alpha: 0.3),
+                                const Color(0xFFF4877B).withOpacity(0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
